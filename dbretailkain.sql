@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: May 07, 2016 at 12:40 AM
+-- Generation Time: May 13, 2016 at 01:14 AM
 -- Server version: 5.5.20
 -- PHP Version: 5.3.9
 
@@ -19,6 +19,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `dbretailkain`
 --
+CREATE DATABASE `dbretailkain` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `dbretailkain`;
 
 -- --------------------------------------------------------
 
@@ -79,6 +81,7 @@ CREATE TABLE IF NOT EXISTS `reff_items` (
   `ItemName` varchar(150) NOT NULL,
   `description` varchar(8000) DEFAULT NULL,
   `Quantity` int(11) DEFAULT NULL,
+  `ItemBarcode` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`ItemName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -86,9 +89,9 @@ CREATE TABLE IF NOT EXISTS `reff_items` (
 -- Dumping data for table `reff_items`
 --
 
-INSERT INTO `reff_items` (`ItemName`, `description`, `Quantity`) VALUES
-('test1', 'test1', 10),
-('test2', 'test2', NULL);
+INSERT INTO `reff_items` (`ItemName`, `description`, `Quantity`, `ItemBarcode`) VALUES
+('test1', 'test1', 11, ''),
+('test2', 'test2', NULL, '');
 
 -- --------------------------------------------------------
 
@@ -97,8 +100,9 @@ INSERT INTO `reff_items` (`ItemName`, `description`, `Quantity`) VALUES
 --
 CREATE TABLE IF NOT EXISTS `reff_itemss` (
 `ItemName` varchar(150)
-,`Description` varchar(8000)
+,`description` varchar(8000)
 ,`Quantity` int(11)
+,`ItemBarcode` varchar(100)
 );
 -- --------------------------------------------------------
 
@@ -170,7 +174,7 @@ CREATE TABLE IF NOT EXISTS `reff_tablekey` (
 INSERT INTO `reff_tablekey` (`tablename`, `keyfields`, `fields`, `Condition`) VALUES
 ('reff_groupid', 'groupid', 'groupid,description', 'groupid != ''11111'''),
 ('reff_groupmenu', 'groupid,menuid', 'groupid,menuid,isView,isAdd,isUpdate,isDelete', 'groupid != ''11111'''),
-('reff_items', 'ItemName', 'ItemName,description', NULL),
+('reff_items', 'ItemName', 'ItemName,description,ItemBarcode', NULL),
 ('reff_itemss', 'ItemName', 'ItemName,Description,Quantity', NULL),
 ('reff_users', 'userid', 'userid,password,groupid,full_name,address,phone_number,email_address,active', 'userid != ''admin'''),
 ('trans_invoice', 'invoiceId,SPKId', 'invoiceId,SPKId,tanggal_invoice,jenis_kendaraan,no_polisi_kendaraan,Pemilik,no_hp', NULL),
@@ -284,7 +288,8 @@ CREATE TABLE IF NOT EXISTS `trans_stock` (
 --
 
 INSERT INTO `trans_stock` (`Id`, `Tgl_Barang_Masuk`, `Jenis`, `ItemName`, `Quantity`) VALUES
-(0000000002, '2016-05-07 00:00:00', 'barang masuk', 'test1', 10);
+(0000000002, '2016-05-07 00:00:00', 'barang masuk', 'test1', 10),
+(0000000003, '2016-05-08 00:00:00', 'barang masuk', 'test1', 1);
 
 -- --------------------------------------------------------
 
@@ -293,7 +298,7 @@ INSERT INTO `trans_stock` (`Id`, `Tgl_Barang_Masuk`, `Jenis`, `ItemName`, `Quant
 --
 DROP TABLE IF EXISTS `reff_itemss`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`u440958084_usr`@`mysql.idhostinger.com` SQL SECURITY DEFINER VIEW `reff_itemss` AS select `reff_items`.`ItemName` AS `ItemName`,`reff_items`.`description` AS `Description`,`reff_items`.`Quantity` AS `Quantity` from `reff_items`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `reff_itemss` AS select `reff_items`.`ItemName` AS `ItemName`,`reff_items`.`description` AS `description`,`reff_items`.`Quantity` AS `Quantity`,`reff_items`.`ItemBarcode` AS `ItemBarcode` from `reff_items`;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
