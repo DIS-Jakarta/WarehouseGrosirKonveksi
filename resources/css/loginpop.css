@@ -1,0 +1,74 @@
+#loginform
+{
+   width:300px;
+   height:185px;
+   margin-top:100px;
+   background-color:#F8F8F8;
+   border-radius:3px;
+   box-shadow:0px 0px 10px 0px #424242;
+   padding:10px;
+   box-sizing:border-box;
+   font-family:helvetica;
+   visibility:hidden;
+   display:none;
+   position:absolute;
+   margin-left:27%;
+   z-index:10001;
+}
+#loginform #close_login
+{
+   position:absolute;
+   margin-top:-29px;
+   left:90%;
+   width:13px;
+   height:13px;
+}
+#loginform p
+{
+   margin-top:40px;
+   font-size:22px;
+   color:#E6E6E6;
+}
+#loginform #login
+{
+   width:150px;
+   height:33px;
+   border:2px solid silver;
+   border-radius:3px;
+   padding:5px;
+}
+#loginform #password
+{
+   margin-top:5px;
+   width:150px;
+   height:33px;
+   border:2px solid silver;
+   border-radius:3px;
+   padding:5px;
+}
+#loginform #dologin
+{
+   
+   margin-top:10px;
+   width:100px;
+   height:33px;
+   border:none;
+   border-radius:3px;
+   color:#F8F8F8;
+   font-size:12px;
+}
+
+#loginform h3
+{
+font-size:14px;
+font-weight:700;
+margin-top:10px;
+}
+
+#loginform input
+{
+color:#000;
+}
+
+
+

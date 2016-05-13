@@ -1,0 +1,88 @@
+/* CSS for Grid */
+#phpGrid
+{
+margin-left:3%;
+font-size:14px;
+color:black;
+text-shadow: 0 1px 0 #fff;
+font-family: "Helvetica Neue", Helvetica, Arial, Verdana, sans-serif;
+    box-sizing: border-box;
+	
+}
+
+/* .gridtable
+{
+table-layout:fixed;
+width:96%;
+word-wrap:break-all;
+border-spacing:0px;
+border: 1px solid #77BACE;
+-webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+} */
+
+#phpGrid table
+{
+width:96%;
+}
+
+#phpGrid table thead tr th
+{
+background:#B5E5EF;
+border: 1px solid #77BACE;
+}
+
+#phpGrid table tbody tr td
+{
+text-align:left;
+padding-top:3px;
+padding-bottom:3px;
+padding-left:10px;
+border: 1px solid #77BACE;
+background:#fff;
+max-width: 30px;
+word-wrap: break-word;
+word-break:break-all;
+white-space: normal;
+}
+/* end of CSS for Grid */
+
+
+/* button add for grid */
+.btn-add
+{
+display: block;
+margin-top:3%;
+margin-left:3%;
+padding-bottom:2%;
+width: 150px;
+height: 27px;
+background: #B5E5EF;
+box-shadow:0px 0px 4px 0px #ccc;
+-webkit-border-radius: 5px;
+-moz-border-radius: 5px;
+text-align: center;
+line-height: 15px;
+color:#000;
+text-decoration: none;
+text-shadow: 0 -1px 0 #666666;
+}
+
+.btn-add:hover
+{
+box-shadow:0px 0px 5px 0px #000;
+}
+/* button add for grid */
+
+#phpGrid table tbody tr td a
+{
+color:#fff;
+text-shadow: 0 -1px 0 #666666;
+}
+
+.modal-dialog
+{
+color:#000;
+}
+
