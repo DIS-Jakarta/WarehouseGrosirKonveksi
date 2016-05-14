@@ -4,6 +4,8 @@
 		$('#Price').maskMoney({prefix:'', thousands:'.', decimal:',', precision:0});
 		$('#Price2').maskMoney({prefix:'', thousands:'.', decimal:',', precision:0});
 		$('#Price3').maskMoney({prefix:'', thousands:'.', decimal:',', precision:0});
+		
+		
 			$(document).scannerDetection({
 			avgTimeByChar: 400,
 			onComplete: function(barcode, qty){ $('#ItemBarcode').val(barcode) },
@@ -13,6 +15,11 @@
 	});
 	
 	$('.current').html("Master Barang")
+	
+	function makereadonly()
+	{
+		$('#ItemBarcode').prop('readonly', true);
+	}
 	
 	</script>
 	<section id="main" class="column">
@@ -49,7 +56,7 @@
 		if(isset($Items))
 		{ 
 		if($isAdd == 1)
-		echo '<button class="btn btn-add" onclick="add()"><i class="glyphicon glyphicon-plus"></i> Tambah barang</button>';
+		echo '<button class="btn btn-add" onclick="add();makereadonly();"><i class="glyphicon glyphicon-plus"></i> Tambah barang</button>';
 		
 		echo '<br />
 		<div id="phpGrid">
@@ -58,7 +65,7 @@
                     <tr>
                       <th>NAMA ITEM</th>
                       <th>DESKRIPSI</th>
-                      <th>ITEM BARCODE</th>
+                      <th>KODE BARANG</th>
                       <th>ACTION</th>
                     </tr>
                   </thead>

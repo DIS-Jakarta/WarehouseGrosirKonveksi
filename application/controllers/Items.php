@@ -52,6 +52,11 @@ class Items extends CI_Controller {
 					else
 					$row[] = "tidak";
 				}
+				else if(strpos(strtolower($column[$i]), 'tgl') !== FALSE || strpos(strtolower($column[$i]), 'tanggal') !== FALSE)
+				{
+					$date = strtotime($outp->$column[$i]);
+					$row[] = date('d/m/Y',$date);
+				}
 				else if(strpos($column[$i],"Price") !== FALSE)
 				{
 					$row[] = "Rp. " . number_format($outp->$column[$i],0,',','.');

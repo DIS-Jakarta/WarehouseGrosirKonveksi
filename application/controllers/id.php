@@ -22,5 +22,25 @@ Class id extends CI_Controller
 		
 		echo json_encode($data);
 	}
+	
+	public function getIdStokBarang()
+	{
+		$id;
+		$query= "SELECT MAX(" . $_POST['Id'] . ") + 1 AS 'id' FROM " . $_POST['tablename'];
+		if(!(is_null($this->db->query($query)->row()->id)))
+		{
+			$id = $this->db->query($query)->row()->id;
+		}
+		else
+		{
+			$id = "1";
+		}
+		$data = array(
+		'success' => TRUE,
+		'id' => $id
+		);
+		
+		echo json_encode($data);
+	}
 }
 ?>

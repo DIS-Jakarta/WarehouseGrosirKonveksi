@@ -7,6 +7,68 @@
 	
 	$('.current').html("Stok Barang")
 	
+	$(document).scannerDetection({
+			avgTimeByChar: 400,
+			onComplete: function(barcode, qty)
+			{ 
+
+			try
+			{
+				var existinginput = false;
+				var savecounttr = "";
+				var counttr = 1;
+				$( ".tr-row" ).each(function( index ) {
+					$( ".td-column" ).each(function( index ) {
+						var currentid = $(this).attr('id');
+						$(this).attr('id',currentid + "_" + counttr);
+						if($(this).html().indexOf(barcode) >= 0)
+						{
+							existinginput = true;
+							savecounttr = counttr;
+						}
+					});
+					counttr++;
+				});
+				
+				if(existinginput)
+				{
+					$('#td-Quantity_' + savecounttr).val($('#td-Quantity_' + savecounttr).val() + 1);
+				}
+				else
+				{
+					$.ajax({
+					url : "<?php echo site_url('Items/selectwquery')?>",
+					type: "POST",
+					data: { "query" : "select ( IFNULL(Quantity,0) " +
+					" " + jenis + jumlahstok + ") as 'datas' " +
+					"from reff_items where ItemName='" + itemname  + "'","keys" : $('#ItemName').val(), 
+					"method" : save_method, "id" : idtransstok, "Quantity" : jumlahstok}, 
+					dataType: "JSON",
+					success: function(data)
+					{
+					   if(!(data.success))
+						{	
+							alert('Terjadi kesalahan saat menambah stok barang. Mohon menghubungi adminsitrator');
+						}
+						else
+						{
+							
+						}
+					},
+					error: function (jqXHR, textStatus, errorThrown)
+					{
+						alert('Terjadi kesalahan saat menambah stok barang. Mohon menghubungi adminsitrator');
+					}
+					});
+				}
+			}
+			catch(err){}
+			
+			},
+			
+			onError: function(string){ }
+			});
+	
 	function fillInvoiceData()
 	{
 		 <?php 
@@ -116,6 +178,9 @@
 		$('#tanggalbarang').html('TANGGAL BARANG MASUK');
 		$('#Jenis').val("barang masuk");
 		 $('#Jenis').prop('readonly', true);
+		 $('#hddn-jenis').val("barang masuk");
+		 $('#tglmasukkeluar').val("TANGGAL BARANG MASUK");
+		 $('.modal-title').html("ADD BARANG MASUK");
 	}
 	
 		function barangkeluar()
@@ -123,6 +188,9 @@
 		$('#tanggalbarang').html('TANGGAL BARANG KELUAR');
 		$('#Jenis').val("barang keluar");
 		 $('#Jenis').prop('readonly', true);
+		 $('#hddn-jenis').val("barang keluar");
+		 $('#tglmasukkeluar').val("TANGGAL BARANG KELUAR");
+		 $('.modal-title').html("ADD BARANG KELUAR");
 	}
 	
 	function testparsedatatables()
@@ -135,6 +203,12 @@
 		});
 	}
 	
+	function addstockbarang()
+	{
+		$('#modal_form2').modal("show");
+		
+	}
+
 	
 	</script>
 	<section id="main" class="column">
@@ -171,20 +245,20 @@
 		if(isset($Items))
 		{ 
 		if($isAdd == 1)
-		echo '<button class="btn btn-add" onclick="barangmasuk();" style="float:left;margin-right:10px;margin-bottom:5px;"><i class="glyphicon glyphicon-plus"></i> Barang masuk</button>';
-		echo '<button class="btn btn-add" onclick="barangkeluar();"><i class="glyphicon glyphicon-plus"></i> Barang keluar</button>';
+		echo '<button class="btn btn-add" onclick="barangmasuk();addstockbarang();" style="float:left;margin-right:10px;margin-bottom:5px;"><i class="glyphicon glyphicon-plus"></i> Barang masuk</button>';
+		echo '<button class="btn btn-add" onclick="barangkeluar();addstockbarang();"><i class="glyphicon glyphicon-plus"></i> Barang keluar</button>';
 		
 		echo '<br />
 		<div id="phpGrid">
 			<table class="table table-striped table-bordered" id="table" cellspacing="0" width="98%">
                   <thead>
                     <tr>
-					  <th>ID</th>
-                      <th>TANGGAL MASUK / KELUAR</th>
-                      <th>JENIS</th>
-                      <th>NAMA BARANG</th>
-                      <th>QUANTITY</th>
-                      <th>ACTION</th>	
+					  <th width="2%">ID Transaksi</th>
+                      <th width="18%">TANGGAL MASUK / KELUAR</th>
+                      <th width="15%">JENIS</th>
+                      <th width="35%">NAMA BARANG</th>
+                      <th width ="10%">QUANTITY</th>
+                      <th width ="20%">ACTION</th>	
                     </tr>
                   </thead>
                   <tbody>';
@@ -211,7 +285,7 @@
 		} ?>
 		
 		
-		<button class="btn btn-add" onclick="testparsedatatables();" style="float:left;margin-right:10px;margin-bottom:5px;"><i class="glyphicon glyphicon-plus"></i> Barang masuk</button>
+		
 		<!-- Bootstrap modal -->
   <div class="modal fade" id="modal_form" role="dialog">
   <div class="modal-dialog">
@@ -264,6 +338,44 @@
             <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
 			<button type="button" class="btn btn-danger" id="btnclose" style="display: none;" data-dismiss="modal">Close</button>
           </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+  <!-- End Bootstrap modal -->
+  
+  
+  
+  		<!-- Bootstrap modal add stock barang -->
+  <div class="modal fade" id="modal_form2" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnclose2"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title">Add</h3>
+      </div>
+      <div class="modal-body form">
+	  <input type="hidden" id="hddn-jenis" />
+	  <table class="table table-striped table-bordered" cellspacing="0" width="98%">
+	  <thead>
+	  <tr>
+	  <th>KODE BARANG</th>
+	  <th>NAMA BARANG</th>
+	  <th>QUANTITY</th>
+	  </tr>
+	  </thead>
+	  <tbody id="tb-table">
+	  <tr class="tr-row">
+	  <td class="td-column" width="30%" id="td-ItemBarcode"><input type="text" class="form-control" id="ItemBarcode" readonly /></td>
+	  <td class="td-column" width="60%" id="td-ItemName"><select name="ItemName" id="ItemName" class="form-control" ></select></td>
+	  <td class="td-column" width="10%" id="td-Quantity"><input type="text" class="form-control" id="Quantity" /></td>
+	  </tr>
+	  </tbody>
+	  </table>
+          <div class="modal-footer">
+            <button type="button" id="btnSave" onclick="savestokbarang()" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+          </div>
+		  </div>
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->

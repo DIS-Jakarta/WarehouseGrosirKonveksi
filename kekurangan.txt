@@ -1,0 +1,4 @@
+warehouse system note :
+- scan barang , cek apakah barcode barang sudah ada di table ? 
+jika sudah ada tambahkan quantity + 1, jika belum tambahkan 1 row dibawah dengan quantity 1 
+dan tambahkan 1 row dibawah
