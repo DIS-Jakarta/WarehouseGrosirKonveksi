@@ -33,6 +33,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	<script src="<? echo site_url();?>/resources/js/jquery.maskMoney.min.js" type="text/javascript"></script>
 	<script src="<? echo site_url();?>/resources/js/dataTables.fixedColumns.min.js" type="text/javascript"></script>
 	<script src="<? echo site_url();?>/resources/js/jquery.tabletojson.js" type="text/javascript"></script>
+	<script src="<? echo site_url();?>/resources/js/jquery.scannerdetection.js" type="text/javascript"></script>
 	
 	<script type="text/javascript">
 	/* $j(document).ready(function() 

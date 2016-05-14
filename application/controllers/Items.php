@@ -318,7 +318,7 @@ class Items extends CI_Controller {
 	}
 	
 	
-	public function testgetdt()
+	public function cekQuantityquery()
 	{
 		
 	}

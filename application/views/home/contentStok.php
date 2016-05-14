@@ -19,9 +19,9 @@
 				var counttr = 1;
 				$( ".tr-row" ).each(function( index ) {
 					$( ".td-column" ).each(function( index ) {
-						var currentid = $(this).attr('id');
-						$(this).attr('id',currentid + "_" + counttr);
-						if($(this).html().indexOf(barcode) >= 0)
+						var currentid = $(this).find('input').attr('id');
+						$(this).find('input').attr('id',currentid + "_" + counttr);
+						if($(this).find().val().indexOf(barcode) >= 0)
 						{
 							existinginput = true;
 							savecounttr = counttr;
@@ -32,17 +32,16 @@
 				
 				if(existinginput)
 				{
-					$('#td-Quantity_' + savecounttr).val($('#td-Quantity_' + savecounttr).val() + 1);
+					var totalQuantity = $('#td-Quantity_' + savecounttr).html() + 1;
+					$('#td-Quantity_' + savecounttr).html(totalQuantity);
 				}
 				else
 				{
 					$.ajax({
-					url : "<?php echo site_url('Items/selectwquery')?>",
+					url : "<?php echo site_url('Items/cekQuantityquery')?>",
 					type: "POST",
-					data: { "query" : "select ( IFNULL(Quantity,0) " +
-					" " + jenis + jumlahstok + ") as 'datas' " +
-					"from reff_items where ItemName='" + itemname  + "'","keys" : $('#ItemName').val(), 
-					"method" : save_method, "id" : idtransstok, "Quantity" : jumlahstok}, 
+					data: { "query" : "select ItemName " +
+					"from reff_items where ItemBarcode='" + barcode  + "' and Quantity >= 1" }, 
 					dataType: "JSON",
 					success: function(data)
 					{
@@ -52,7 +51,24 @@
 						}
 						else
 						{
-							
+							var trrowcount = $('#tableaddstokbarang tr').length;
+							var fillrows = 
+							"<tr class='tr-row'>" +
+							"<td class='td-column' width='25%'>" +
+							"<input type='text' class='form-control' id='td-ItemBarcode_" + trrowcount + "' value='" + barcode + "' readonly />" +
+							"</td>" +
+							"<td class='td-column' width='25%' id='td-ItemName'>" +
+							"<select name='ItemName' id='td-ItemName_" + trrowcount + "' class='form-control' ></select>" +
+							"</td>" +
+							"<td class='td-column' width='25%' id='td-Quantity'>" +
+							"<input type='text' class='form-control' id='td-Quantity_" + trrowcount + "' value='1' />" +
+							"</td>" +
+							"<td>" +
+							"<a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow();'" +
+							"<i class='glyphicon glyphicon-trash'></i></a>" +
+							"<td>" +
+							"</tr>";
+							$('#tb-table').html( fillrows + $('#tb-table').html());
 						}
 					},
 					error: function (jqXHR, textStatus, errorThrown)
@@ -68,6 +84,36 @@
 			
 			onError: function(string){ }
 			});
+	
+	function fillddl(iditemname)
+	{
+		$.ajax({
+			url : "<?php echo site_url('Items/fillddl')?>",
+			type: "POST",
+			"data": {
+			"tablename" : "trans_stock",
+			"reff_column" : "ItemName"
+			},
+			dataType: "JSON",
+			success: function(data)
+			{
+				if(data.success)
+				{				
+				$("#" + iditemname + " ").html(data.options);
+				//$("' . '#' . $column[$i] . '").val(data.reffvalue);
+				}
+			},
+			error: function (jqXHR, textStatus, errorThrown)
+			{
+				
+			}
+		});
+	}
+	
+	function removerow()
+	{
+		$(this).closest('tr').remove();
+	}
 	
 	function fillInvoiceData()
 	{
@@ -193,19 +239,10 @@
 		 $('.modal-title').html("ADD BARANG KELUAR");
 	}
 	
-	function testparsedatatables()
-	{
-		var table = JSON.stringify($('#table').tableToJSON());
-		$.ajax({
-            url : "<?php echo site_url('Items/testgetdt')?>",
-            type: "POST",
-            data: table 
-		});
-	}
-	
 	function addstockbarang()
 	{
 		$('#modal_form2').modal("show");
+		fillddl("td-ItemName");
 		
 	}
 
@@ -253,7 +290,7 @@
 			<table class="table table-striped table-bordered" id="table" cellspacing="0" width="98%">
                   <thead>
                     <tr>
-					  <th width="2%">ID Transaksi</th>
+					  <th width="2%">ID</th>
                       <th width="18%">TANGGAL MASUK / KELUAR</th>
                       <th width="15%">JENIS</th>
                       <th width="35%">NAMA BARANG</th>
@@ -355,19 +392,21 @@
       </div>
       <div class="modal-body form">
 	  <input type="hidden" id="hddn-jenis" />
-	  <table class="table table-striped table-bordered" cellspacing="0" width="98%">
+	  <table class="table table-striped table-bordered" id="tableaddstokbarang" cellspacing="0" width="98%">
 	  <thead>
 	  <tr>
 	  <th>KODE BARANG</th>
 	  <th>NAMA BARANG</th>
 	  <th>QUANTITY</th>
+	  <th>ACTION</th>
 	  </tr>
 	  </thead>
 	  <tbody id="tb-table">
 	  <tr class="tr-row">
-	  <td class="td-column" width="30%" id="td-ItemBarcode"><input type="text" class="form-control" id="ItemBarcode" readonly /></td>
-	  <td class="td-column" width="60%" id="td-ItemName"><select name="ItemName" id="ItemName" class="form-control" ></select></td>
-	  <td class="td-column" width="10%" id="td-Quantity"><input type="text" class="form-control" id="Quantity" /></td>
+	  <td class="td-column" width="25%" ><input type="text" class="form-control" id="td-ItemBarcode" readonly /></td>
+	  <td class="td-column" width="55%" ><select name="ItemName" id="td-ItemName" class="form-control" ></select></td>
+	  <td class="td-column" width="10%" ><input type="text" class="form-control" id="td-Quantity" /></td>
+	  <td class="td-column" width="10%" >&nbsp;</td>
 	  </tr>
 	  </tbody>
 	  </table>
