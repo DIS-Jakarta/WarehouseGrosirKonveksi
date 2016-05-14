@@ -1,17 +1,15 @@
-	
+	<script src="<? echo site_url();?>/resources/js/jquery.scannerdetection.js" type="text/javascript"></script>
 	<script type="text/javascript">
 	$(document).ready(function(){
 		$('#Price').maskMoney({prefix:'', thousands:'.', decimal:',', precision:0});
 		$('#Price2').maskMoney({prefix:'', thousands:'.', decimal:',', precision:0});
 		$('#Price3').maskMoney({prefix:'', thousands:'.', decimal:',', precision:0});
-		
-		$(document).keypress(function(e){
-		try
-		{
-			$('#barcodeinput').val(String.fromCharCode(e.which));
-		}
-		catch(err){}
-	});
+			$(document).scannerDetection({
+			avgTimeByChar: 400,
+			onComplete: function(barcode, qty){ $('#ItemBarcode').val(barcode) },
+			onError: function(string){ }
+			});
+
 	});
 	
 	$('.current').html("Master Barang")
