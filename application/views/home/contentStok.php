@@ -11,75 +11,83 @@
 			avgTimeByChar: 400,
 			onComplete: function(barcode, qty)
 			{ 
-
-			try
-			{
-				var existinginput = false;
-				var savecounttr = "";
-				var counttr = 1;
-				$( ".tr-row" ).each(function( index ) {
-					$( ".td-column" ).each(function( index ) {
-						var currentid = $(this).find('input').attr('id');
-						$(this).find('input').attr('id',currentid + "_" + counttr);
-						if($(this).find().val().indexOf(barcode) >= 0)
-						{
-							existinginput = true;
-							savecounttr = counttr;
-						}
-					});
-					counttr++;
-				});
-				
-				if(existinginput)
-				{
-					var totalQuantity = $('#td-Quantity_' + savecounttr).html() + 1;
-					$('#td-Quantity_' + savecounttr).html(totalQuantity);
-				}
-				else
-				{
-					$.ajax({
-					url : "<?php echo site_url('Items/cekQuantityquery')?>",
-					type: "POST",
-					data: { "query" : "select ItemName " +
-					"from reff_items where ItemBarcode='" + barcode  + "' and Quantity >= 1" }, 
-					dataType: "JSON",
-					success: function(data)
+			
+			  $.ajax({
+				url : "<?php echo site_url('Items/selectreturnvalquery')?>",
+				type: "POST",
+				data: { "Query" : "select ItemName " +
+				"from reff_items where ItemBarcode='" + barcode + "' LIMIT 1" , "fieldname" : "ItemName"}, 
+				dataType: "JSON",
+				success: function(data)
 					{
-					   if(!(data.success))
-						{	
-							alert('Terjadi kesalahan saat menambah stok barang. Mohon menghubungi adminsitrator');
-						}
-						else
+					 if(data.success)
+					 {
+						var countrowtr = 1;
+						var existingitem = false;
+						$( ".tr-row" ).each(function( index ) {
+							var barcodeintbl = "";
+							if(countrowtr == 1)
+								barcodeintbl = $("#td-ItemBarcode").val();
+							else
+								barcodeintbl = $("#td-ItemBarcode_" + countrowtr).val();
+							if(!(barcodeintbl === undefined))
+							{
+								if(barcodeintbl.indexOf(barcode) >= 0)
+								{
+									var totalQuantity = "";
+									
+									if(countrowtr == 1)
+									{
+										if($('#td-Quantity').val() === "")
+											$('#td-Quantity').val(0);
+										
+										totalQuantity = parseInt($('#td-Quantity').val(),10) + 1;
+										$('#td-Quantity').val(totalQuantity);
+									}
+									else
+									{
+										if($('#td-Quantity_' + countrowtr).val() === "")
+											$('#td-Quantity').val(0);
+										
+										totalQuantity = parseInt($('#td-Quantity_' + countrowtr).val(),10) + 1;
+										$('#td-Quantity_' + countrowtr).val(totalQuantity);
+									}
+									
+									existingitem = true;
+								}
+							}
+								countrowtr++;
+						});
+						
+						if(!(existingitem))
 						{
-							var trrowcount = $('#tableaddstokbarang tr').length;
+						var trrowcount = $('#tableaddstokbarang tr').length;
 							var fillrows = 
 							"<tr class='tr-row'>" +
-							"<td class='td-column' width='25%'>" +
+							"<td class='td-column' width='30%'>" +
 							"<input type='text' class='form-control' id='td-ItemBarcode_" + trrowcount + "' value='" + barcode + "' readonly />" +
 							"</td>" +
-							"<td class='td-column' width='25%' id='td-ItemName'>" +
-							"<select name='ItemName' id='td-ItemName_" + trrowcount + "' class='form-control' ></select>" +
+							"<td class='td-column' width='50%' >" +
+							"<select name='ItemName' id='td-ItemName_" + trrowcount + "' class='form-control'" + 
+							"oninput=\"fillbarcode($(this).val(),$(this).attr('id'))\" ></select>" +
 							"</td>" +
-							"<td class='td-column' width='25%' id='td-Quantity'>" +
-							"<input type='text' class='form-control' id='td-Quantity_" + trrowcount + "' value='1' />" +
+							"<td class='td-column' width='10%' >" +
+							"<input type='text' class='form-control' id='td-Quantity_" + trrowcount + "' value =\"1\" />" +
 							"</td>" +
-							"<td>" +
-							"<a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow('td-Quantity_" + trrowcount + "');'" +
+							"<td class='td-column' width='10%'>" +
+							"<a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow(\"td-Quantity_" + trrowcount + "\");'>" +
 							"<i class='glyphicon glyphicon-trash'></i></a>" +
-							"<td>" +
+							"</td>" +
 							"</tr>";
-							$('#tb-table').html( fillrows + $('#tb-table').html());
+							$('#tb-table').append( fillrows );
+							
+							
+							fillddl("td-ItemName_" + trrowcount,data.ItemName)
+
 						}
-					},
-					error: function (jqXHR, textStatus, errorThrown)
-					{
-						alert('Terjadi kesalahan saat menambah stok barang. Mohon menghubungi adminsitrator');
+					 }
 					}
-					});
-				}
-			}
-			catch(err){}
-			
+			  });
 			},
 			
 			onError: function(string){ }
@@ -287,10 +295,10 @@
 		var trrowcount = $('#tableaddstokbarang tr').length;
 						var fillrows = 
 						"<tr class='tr-row'>" +
-						"<td class='td-column' width='25%'>" +
+						"<td class='td-column' width='30%'>" +
 						"<input type='text' class='form-control' id='td-ItemBarcode_" + trrowcount + "' readonly />" +
 						"</td>" +
-						"<td class='td-column' width='55%' >" +
+						"<td class='td-column' width='50%' >" +
 						"<select name='ItemName' id='td-ItemName_" + trrowcount + "' class='form-control'" + 
 						"oninput=\"fillbarcode($(this).val(),$(this).attr('id'))\" ></select>" +
 						"</td>" +
@@ -474,8 +482,8 @@
 	  </thead>
 	  <tbody id="tb-table">
 	  <tr class="tr-row">
-	  <td class="td-column" width="25%" ><input type="text" class="form-control" id="td-ItemBarcode" readonly /></td>
-	  <td class="td-column" width="55%" ><select name="ItemName" id="td-ItemName" class="form-control" oninput="fillbarcode($(this).val(),$(this).attr('id'))" ></select></td>
+	  <td class="td-column" width="30%" ><input type="text" class="form-control" id="td-ItemBarcode" readonly /></td>
+	  <td class="td-column" width="50%" ><select name="ItemName" id="td-ItemName" class="form-control" oninput="fillbarcode($(this).val(),$(this).attr('id'))" ></select></td>
 	  <td class="td-column" width="10%" ><input type="text" class="form-control" id="td-Quantity" /></td>
 	  <td class="td-column" width="10%" ><a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow("td-Quantity")'><i class='glyphicon glyphicon-trash'></i></a></td>
 	  </tr>
