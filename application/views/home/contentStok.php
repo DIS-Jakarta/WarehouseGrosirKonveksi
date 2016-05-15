@@ -318,8 +318,8 @@
 	function resetmodal()
 	{
 		$('#tb-table').html("<tr class=\"tr-row\">" +
-	  "<td class=\"td-column\" width=\"25%\" ><input type=\"text\" class=\"form-control\" id=\"td-ItemBarcode\" readonly /></td>" +
-	  "<td class=\"td-column\" width=\"55%\" ><select name=\"ItemName\" id=\"td-ItemName\" class=\"form-control\" " + 
+	  "<td class=\"td-column\" width=\"30%\" ><input type=\"text\" class=\"form-control\" id=\"td-ItemBarcode\" readonly /></td>" +
+	  "<td class=\"td-column\" width=\"50%\" ><select name=\"ItemName\" id=\"td-ItemName\" class=\"form-control\" " + 
 	  "oninput=\"fillbarcode($(this).val(),$(this).attr('id'))\" ></select></td>" +
 	  "<td class=\"td-column\" width=\"10%\" ><input type=\"text\" class=\"form-control\" id=\"td-Quantity\" /></td>" +
 	  "<td class=\"td-column\" width=\"10%\" ><a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow(\"td-Quantity\")'><i class='glyphicon glyphicon-trash'></i></a></td>" +
