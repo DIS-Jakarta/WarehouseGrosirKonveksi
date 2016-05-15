@@ -120,7 +120,9 @@
 	
 	function removerow()
 	{
+		//<![CDATA[
 		$(this).closest('tr').remove();
+		//]]>
 	}
 	
 	function fillInvoiceData()
@@ -277,6 +279,29 @@
                 
             }
         });
+	}
+	
+	function addnewrow()
+	{
+		var trrowcount = $('#tableaddstokbarang tr').length;
+						var fillrows = 
+						"<tr class='tr-row'>" +
+						"<td class='td-column' width='25%'>" +
+						"<input type='text' class='form-control' id='td-ItemBarcode_" + trrowcount + "' readonly />" +
+						"</td>" +
+						"<td class='td-column' width='55%' >" +
+						"<select name='ItemName' id='td-ItemName_" + trrowcount + "' class='form-control'" + 
+						"oninput=\"fillbarcode($(this).val(),$(this).attr('id'))\" ></select>" +
+						"</td>" +
+						"<td class='td-column' width='10%' >" +
+						"<input type='text' class='form-control' id='td-Quantity_" + trrowcount + "' />" +
+						"</td>" +
+						"<td class='td-column' width='10%'>" +
+						"<a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow();'>" +
+						"<i class='glyphicon glyphicon-trash'></i></a>" +
+						"</td>" +
+						"</tr>";
+						$('#tb-table').html( fillrows + $('#tb-table').html());
 	}
 	
 	</script>

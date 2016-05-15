@@ -19,7 +19,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	<link rel="stylesheet" href="css/ie.css" type="text/css" media="screen" />
 	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
-	<script src="<? echo site_url();?>/resources/js/jquery-2.1.4.min.js" type="text/javascript"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
 	<script src="<? echo site_url();?>/resources/js/jquery-1.5.2.min.js" type="text/javascript"></script>
 	<script type="text/javascript">
 	var $j = jQuery.noConflict(true);
