@@ -64,7 +64,7 @@
 							"<input type='text' class='form-control' id='td-Quantity_" + trrowcount + "' value='1' />" +
 							"</td>" +
 							"<td>" +
-							"<a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow();'" +
+							"<a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow('td-Quantity_" + trrowcount + "');'" +
 							"<i class='glyphicon glyphicon-trash'></i></a>" +
 							"<td>" +
 							"</tr>";
@@ -118,10 +118,11 @@
 		});
 	}
 	
-	function removerow()
+	function removerow(id)
 	{
+		var ids = id;
 		//<![CDATA[
-		$(this).closest('tr').remove();
+		$("#" + id).closest('tr').remove();
 		//]]>
 	}
 	
@@ -297,11 +298,24 @@
 						"<input type='text' class='form-control' id='td-Quantity_" + trrowcount + "' />" +
 						"</td>" +
 						"<td class='td-column' width='10%'>" +
-						"<a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow();'>" +
+						"<a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow(\"td-Quantity_" + trrowcount + "\");'>" +
 						"<i class='glyphicon glyphicon-trash'></i></a>" +
 						"</td>" +
 						"</tr>";
-						$('#tb-table').html( fillrows + $('#tb-table').html());
+						$('#tb-table').append( fillrows );
+	    
+		fillddl("td-ItemName_" + trrowcount );
+	}
+	
+	function resetmodal()
+	{
+		$('#tb-table').html("<tr class=\"tr-row\">" +
+	  "<td class=\"td-column\" width=\"25%\" ><input type=\"text\" class=\"form-control\" id=\"td-ItemBarcode\" readonly /></td>" +
+	  "<td class=\"td-column\" width=\"55%\" ><select name=\"ItemName\" id=\"td-ItemName\" class=\"form-control\" " + 
+	  "oninput=\"fillbarcode($(this).val(),$(this).attr('id'))\" ></select></td>" +
+	  "<td class=\"td-column\" width=\"10%\" ><input type=\"text\" class=\"form-control\" id=\"td-Quantity\" /></td>" +
+	  "<td class=\"td-column\" width=\"10%\" ><a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow(\"td-Quantity\")'><i class='glyphicon glyphicon-trash'></i></a></td>" +
+	  "</tr>");
 	}
 	
 	</script>
@@ -385,7 +399,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnclose2"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnclose2" ><span aria-hidden="true">&times;</span></button>
         <h3 class="modal-title">Item Form</h3>
       </div>
       <div class="modal-body form">
@@ -429,7 +443,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" id="btnSave" onclick="save()" class="btn btn-primary">Save</button>
-            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal" >Cancel</button>
 			<button type="button" class="btn btn-danger" id="btnclose" style="display: none;" data-dismiss="modal">Close</button>
           </div>
         </div><!-- /.modal-content -->
@@ -444,7 +458,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnclose2"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btnclose2" onclick="resetmodal();"><span aria-hidden="true">&times;</span></button>
         <h3 class="modal-title">Add</h3>
       </div>
       <div class="modal-body form">
@@ -463,14 +477,14 @@
 	  <td class="td-column" width="25%" ><input type="text" class="form-control" id="td-ItemBarcode" readonly /></td>
 	  <td class="td-column" width="55%" ><select name="ItemName" id="td-ItemName" class="form-control" oninput="fillbarcode($(this).val(),$(this).attr('id'))" ></select></td>
 	  <td class="td-column" width="10%" ><input type="text" class="form-control" id="td-Quantity" /></td>
-	  <td class="td-column" width="10%" >&nbsp;</td>
+	  <td class="td-column" width="10%" ><a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow("td-Quantity")'><i class='glyphicon glyphicon-trash'></i></a></td>
 	  </tr>
 	  </tbody>
 	  </table>
 	  <button type="button" id="btnSave" onclick="addnewrow()" class="btn btn-primary" style="margin-bottom: 15px;width: 100%;"><i class="glyphicon glyphicon-plus"></i></button>
           <div class="modal-footer">
             <button type="button" id="btnSave" onclick="savestokbarang()" class="btn btn-primary">Save</button>
-            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="resetmodal();" >Cancel</button>
           </div>
 		  </div>
         </div><!-- /.modal-content -->
