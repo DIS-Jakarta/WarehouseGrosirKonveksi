@@ -85,7 +85,7 @@
 			onError: function(string){ }
 			});
 	
-	function fillddl(iditemname)
+	function fillddl(iditemname,selecteditem)
 	{
 		$.ajax({
 			url : "<?php echo site_url('Items/fillddl')?>",
@@ -99,8 +99,16 @@
 			{
 				if(data.success)
 				{				
-				$("#" + iditemname + " ").html(data.options);
-				//$("' . '#' . $column[$i] . '").val(data.reffvalue);
+				$("#" + iditemname).html(data.options);
+					if(!(selecteditem  === undefined))
+					{
+						$("#" + iditemname + " ").val(selecteditem);
+					}
+					else
+					{
+						selecteditem = $("#" + iditemname).val();
+					}
+					fillbarcode(selecteditem,iditemname);
 				}
 			},
 			error: function (jqXHR, textStatus, errorThrown)
@@ -243,9 +251,33 @@
 	{
 		$('#modal_form2').modal("show");
 		fillddl("td-ItemName");
-		
 	}
 
+	function fillbarcode(selecteditem,rplciditemname)
+	{
+		var elmbarcodeid = "td-ItemBarcode";
+		var iditemname = rplciditemname.replace("td-ItemName","")
+		if(!(iditemname.trim() == ""))
+		{
+			elmbarcodeid = elmbarcodeid + iditemname;
+		}
+		
+		$.ajax({
+            url : "<?php echo site_url('Items/selectreturnvalquery')?>",
+            type: "POST",
+            data: { "Query" : "select ItemBarcode " +
+			"from reff_items where ItemName='" + selecteditem + "' LIMIT 1" , "fieldname" : "ItemBarcode"}, 
+            dataType: "JSON",
+            success: function(data)
+            {
+               $("#" + elmbarcodeid).val(data.ItemBarcode);
+            },
+            error: function (jqXHR, textStatus, errorThrown)
+            {
+                
+            }
+        });
+	}
 	
 	</script>
 	<section id="main" class="column">
@@ -392,7 +424,7 @@
       </div>
       <div class="modal-body form">
 	  <input type="hidden" id="hddn-jenis" />
-	  <table class="table table-striped table-bordered" id="tableaddstokbarang" cellspacing="0" width="98%">
+	  <table class="table table-striped table-bordered" id="tableaddstokbarang" cellspacing="0" width="98%" style="margin-bottom:10px;">
 	  <thead>
 	  <tr>
 	  <th>KODE BARANG</th>
@@ -404,12 +436,13 @@
 	  <tbody id="tb-table">
 	  <tr class="tr-row">
 	  <td class="td-column" width="25%" ><input type="text" class="form-control" id="td-ItemBarcode" readonly /></td>
-	  <td class="td-column" width="55%" ><select name="ItemName" id="td-ItemName" class="form-control" ></select></td>
+	  <td class="td-column" width="55%" ><select name="ItemName" id="td-ItemName" class="form-control" oninput="fillbarcode($(this).val(),$(this).attr('id'))" ></select></td>
 	  <td class="td-column" width="10%" ><input type="text" class="form-control" id="td-Quantity" /></td>
 	  <td class="td-column" width="10%" >&nbsp;</td>
 	  </tr>
 	  </tbody>
 	  </table>
+	  <button type="button" id="btnSave" onclick="addnewrow()" class="btn btn-primary" style="margin-bottom: 15px;width: 100%;"><i class="glyphicon glyphicon-plus"></i></button>
           <div class="modal-footer">
             <button type="button" id="btnSave" onclick="savestokbarang()" class="btn btn-primary">Save</button>
             <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>

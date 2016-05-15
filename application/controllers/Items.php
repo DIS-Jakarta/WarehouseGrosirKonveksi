@@ -323,5 +323,30 @@ class Items extends CI_Controller {
 		
 	}
 
+	public function selectreturnvalquery()
+	{
+		log_message('info', print_r("query : " . $_POST["Query"],true));
+		$response = array(
+		'success' => FALSE);
+		try
+		{
+			$out = $this->Content->select2($_POST["Query"]);
+			$countrows = $this->Content->countrows($_POST["Query"]);
+			if($countrows > 0)
+			{
+				foreach($out as $outs)
+				{
+					$response = array(
+					'success' => TRUE,
+					$_POST["fieldname"] => $outs->$_POST["fieldname"]
+					);
+				}
+			}
+		}
+		catch (Exception $e) {
+			log_message('info', print_r($e->getMessage(),true));
+		}
+		echo json_encode($response);
+	}
 
 }
