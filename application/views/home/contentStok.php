@@ -330,38 +330,69 @@
 	function savestokbarang()
 	{
 		var counttr = 1;
-		var barcodeval = "";
+		var barcodeval = $("#td-ItemBarcode").val();
+		var barcodeid = "#td-ItemBarcode";
+		var barcodeqty = $("#td-Quantity").val();
+		var barcodeact = "#td-Action";
 		var noproblem = true;
-		$('#tb-table').each(function()
+		if($.isArray($(".tr-row")))
 		{
-			if(counttr == 1)
+			$(".tr-row").each(function()
 			{
-				barcodeval =  $("#td-ItemBarcode").val();
-			}
-			else
-			{
-				barcodeval =  $("#td-ItemBarcode_" + counttr).val();
-			}
-			
+				if(counttr!= 1)
+				{
+					barcodeval =  $("#td-ItemBarcode_" + counttr).val();
+					barcodeqty =  $("#td-Quantity_" + counttr).val();
+					barcodeid = "#td-ItemBarcode_" + counttr;
+					barcodeact = "#td-Action_" + counttr;
+				}
+				
+				 $.ajax({
+					url : "<?php echo site_url('Items/selectreturnvalquery')?>",
+					type: "POST",
+					data: { "Query" : "SELECT 1 " +
+					"FROM reff_items WHERE ItemBarcode='" + barcodeval + "' AND IFNULL(Quantity,0) > IFNULL(" + barcodeqty + ",0)  LIMIT 1" , "fieldname" : "ItemName"}, 
+					dataType: "JSON",
+					success: function(data)
+						{
+						 if(!(data.success))
+						 {
+							 noproblem = false;
+							 
+							 $(barcodeact).html( $(barcodeact).html() + "<a class='btn btn-sm btn-danger' ><i class='glyphicon glyphicon-remove'></i></a>");
+						 }
+						}
+				 });
+				
+				counttr++;
+			});
+		}
+		else
+		{
 			 $.ajax({
-				url : "<?php echo site_url('Items/selectreturnvalquery')?>",
-				type: "POST",
-				data: { "Query" : "SELECT 1" +
-				"FROM reff_items WHERE ItemBarcode='" + barcodeval + "' AND Quantity > 0  LIMIT 1" , "fieldname" : "ItemName"}, 
-				dataType: "JSON",
-				success: function(data)
-					{
-					 if(!(data.success))
-					 {
-						 noproblem = false;
-						 if()
-						 $('#td-Action_' + trrowcount).html( $('#td-Action_' + trrowcount).html() + "<a class='btn btn-sm btn-danger' ><i class='glyphicon glyphicon-remove'></i></a>");
-					 }
-					}
-			 });
-			
-			counttr++;
-		});
+					url : "<?php echo site_url('Items/selectreturnvalquery')?>",
+					type: "POST",
+					data: { "Query" : "SELECT 1 " +
+					"FROM reff_items WHERE ItemBarcode='" + barcodeval + "' AND IFNULL(Quantity,0) > IFNULL(" + barcodeqty + ",0)  LIMIT 1" , "fieldname" : "ItemName"}, 
+					dataType: "JSON",
+					success: function(data)
+						{
+						 if(!(data.success))
+						 {
+							 noproblem = false;
+							 
+							 $(barcodeact).html( $(barcodeact).html() + "<a class='btn btn-sm btn-danger' ><i class='glyphicon glyphicon-remove'></i></a>");
+						 }
+						}
+				 });
+		}
+		
+		// save data stok barang
+		if(noproblem)
+		{
+			var table = $('#tableaddstokbarang').tableToJSON(); // Convert the table into a javascript object
+			console.log(table);
+		}
 	}
 	
 	</script>
@@ -400,6 +431,7 @@
 		{ 
 		if($isAdd == 1)
 		echo '<button class="btn btn-add" onclick="barangmasuk();addstockbarang();" style="float:left;margin-right:10px;margin-bottom:5px;"><i class="glyphicon glyphicon-plus"></i> Barang masuk</button>';
+	
 		echo '<button class="btn btn-add" onclick="barangkeluar();addstockbarang();"><i class="glyphicon glyphicon-plus"></i> Barang keluar</button>';
 		
 		echo '<br />
@@ -523,7 +555,7 @@
 	  <td class="td-column" width="30%" ><input type="text" class="form-control" id="td-ItemBarcode" readonly /></td>
 	  <td class="td-column" width="50%" ><select name="ItemName" id="td-ItemName" class="form-control" oninput="fillbarcode($(this).val(),$(this).attr('id'))" ></select></td>
 	  <td class="td-column" width="10%" ><input type="text" class="form-control" id="td-Quantity" /></td>
-	  <td class="td-column" width="10%" ><a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow("td-Quantity")'><i class='glyphicon glyphicon-trash'></i></a></td>
+	  <td class="td-column" id="td-Action" width="10%" ><a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow("td-Quantity")'><i class='glyphicon glyphicon-trash'></i></a></td>
 	  </tr>
 	  </tbody>
 	  </table>
