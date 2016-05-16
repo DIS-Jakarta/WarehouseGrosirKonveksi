@@ -30,6 +30,7 @@
 								barcodeintbl = $("#td-ItemBarcode").val();
 							else
 								barcodeintbl = $("#td-ItemBarcode_" + countrowtr).val();
+							
 							if(!(barcodeintbl === undefined))
 							{
 								if(barcodeintbl.indexOf(barcode) >= 0)
@@ -74,7 +75,7 @@
 							"<td class='td-column' width='10%' >" +
 							"<input type='text' class='form-control' id='td-Quantity_" + trrowcount + "' value =\"1\" />" +
 							"</td>" +
-							"<td class='td-column' width='10%'>" +
+							"<td class='td-column' width='10%' id='td-Action_'" + trrowcount + "' >" +
 							"<a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow(\"td-Quantity_" + trrowcount + "\");'>" +
 							"<i class='glyphicon glyphicon-trash'></i></a>" +
 							"</td>" +
@@ -305,7 +306,7 @@
 						"<td class='td-column' width='10%' >" +
 						"<input type='text' class='form-control' id='td-Quantity_" + trrowcount + "' />" +
 						"</td>" +
-						"<td class='td-column' width='10%'>" +
+						"<td class='td-column' width='10%' id='td-Action_'" + trrowcount + "' >" +
 						"<a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow(\"td-Quantity_" + trrowcount + "\");'>" +
 						"<i class='glyphicon glyphicon-trash'></i></a>" +
 						"</td>" +
@@ -322,8 +323,45 @@
 	  "<td class=\"td-column\" width=\"50%\" ><select name=\"ItemName\" id=\"td-ItemName\" class=\"form-control\" " + 
 	  "oninput=\"fillbarcode($(this).val(),$(this).attr('id'))\" ></select></td>" +
 	  "<td class=\"td-column\" width=\"10%\" ><input type=\"text\" class=\"form-control\" id=\"td-Quantity\" /></td>" +
-	  "<td class=\"td-column\" width=\"10%\" ><a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow(\"td-Quantity\")'><i class='glyphicon glyphicon-trash'></i></a></td>" +
+	  "<td class=\"td-column\" width=\"10%\" id='td-Action' ><a class='btn btn-sm btn-danger' href='javascript:void()' onclick='removerow(\"td-Quantity\")'><i class='glyphicon glyphicon-trash'></i></a></td>" +
 	  "</tr>");
+	}
+	
+	function savestokbarang()
+	{
+		var counttr = 1;
+		var barcodeval = "";
+		var noproblem = true;
+		$('#tb-table').each(function()
+		{
+			if(counttr == 1)
+			{
+				barcodeval =  $("#td-ItemBarcode").val();
+			}
+			else
+			{
+				barcodeval =  $("#td-ItemBarcode_" + counttr).val();
+			}
+			
+			 $.ajax({
+				url : "<?php echo site_url('Items/selectreturnvalquery')?>",
+				type: "POST",
+				data: { "Query" : "SELECT 1" +
+				"FROM reff_items WHERE ItemBarcode='" + barcodeval + "' AND Quantity > 0  LIMIT 1" , "fieldname" : "ItemName"}, 
+				dataType: "JSON",
+				success: function(data)
+					{
+					 if(!(data.success))
+					 {
+						 noproblem = false;
+						 if()
+						 $('#td-Action_' + trrowcount).html( $('#td-Action_' + trrowcount).html() + "<a class='btn btn-sm btn-danger' ><i class='glyphicon glyphicon-remove'></i></a>");
+					 }
+					}
+			 });
+			
+			counttr++;
+		});
 	}
 	
 	</script>
