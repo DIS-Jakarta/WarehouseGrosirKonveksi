@@ -335,6 +335,7 @@
 		var barcodeqty = $("#td-Quantity").val();
 		var barcodeact = "#td-Action";
 		var noproblem = true;
+		var arraytable;
 		if($.isArray($(".tr-row")))
 		{
 			$(".tr-row").each(function()
