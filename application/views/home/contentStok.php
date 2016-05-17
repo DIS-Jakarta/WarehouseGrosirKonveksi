@@ -94,8 +94,7 @@
 			  $('#btnSavestokbarang').prop('disabled',false);
 			},
 			
-			onError: function(string){   $('#loadinganimated').css('display','none');
-			  $('#btnSavestokbarang').prop('disabled',false); }
+			onError: function(string){ }
 			});
 	
 	function fillddl(iditemname,selecteditem)
@@ -349,7 +348,7 @@
 		var barcodeact = "#td-Action";
 		var noproblem = true;
 		var arraytable;
-		if($.isArray($(".tr-row")))
+		if($(".tr-row").length > 1)
 		{
 			$(".tr-row").each(function()
 			{
@@ -364,36 +363,31 @@
 				 $.ajax({
 					url : "<?php echo site_url('Items/selectreturnvalquery')?>",
 					type: "POST",
-					data: { "Query" : "SELECT 1 " +
-					"FROM reff_items WHERE ItemBarcode='" + barcodeval + "' AND IFNULL(Quantity,0) > IFNULL(" + barcodeqty + ",0)  LIMIT 1" , "fieldname" : "ItemName"}, 
+					data: { "Query" : "SELECT ItemName " +
+					"FROM reff_items WHERE ItemBarcode='" + barcodeval + "' AND IFNULL(Quantity,0) >= IFNULL(" + barcodeqty + ",0)  LIMIT 1" , "fieldname" : "ItemName"}, 
 					dataType: "JSON",
 					success: function(data)
 						{
 						 if(!(data.success))
 						 {
+
+							 noproblem = false;
+							 
+							 $(barcodeact).html( $(barcodeact).html() + "<i class='glyphicon glyphicon-remove'></i>");
+						 }
+						 else
+						 {
 							 try
 							 {
 								ItemArray.push({
-								 <? if(counttr != 1)
-								 {
-									echo 'ItemName : $("#td-ItemName_" + counttr).val(),';
-								 }
-								 else
-								 {
-									 echo 'ItemName : $("#td-ItemName").val(),';
-								 }
-								 ?>
+								 ItemName : data.ItemName,
 								Quantity : barcodeqty,
 								Jenis : $("#hddn-jenis").val()
 								});
 								
-								console.log(ItemArray)
+								
 							 }
 							 catch (err){}
-							 
-							 noproblem = false;
-							 
-							 $(barcodeact).html( $(barcodeact).html() + "<i class='glyphicon glyphicon-remove'></i>");
 						 }
 						}
 				 });
@@ -406,8 +400,8 @@
 			 $.ajax({
 					url : "<?php echo site_url('Items/selectreturnvalquery')?>",
 					type: "POST",
-					data: { "Query" : "SELECT 1 " +
-					"FROM reff_items WHERE ItemBarcode='" + barcodeval + "' AND IFNULL(Quantity,0) > IFNULL(" + barcodeqty + ",0)  LIMIT 1" , "fieldname" : "ItemName"}, 
+					data: { "Query" : "SELECT ItemName " +
+					"FROM reff_items WHERE ItemBarcode='" + barcodeval + "' AND IFNULL(Quantity,0) >= IFNULL(" + barcodeqty + ",0)  LIMIT 1" , "fieldname" : "ItemName"}, 
 					dataType: "JSON",
 					success: function(data)
 						{
@@ -417,6 +411,20 @@
 							 
 							 $(barcodeact).html( $(barcodeact).html() + "<i class='glyphicon glyphicon-remove'></i>");
 						 }
+						 else
+						 {
+							 try
+							 {
+								ItemArray.push({
+								 ItemName : data.ItemName,
+								Quantity : barcodeqty,
+								Jenis : $("#hddn-jenis").val()
+								});
+								
+								
+							 }
+							 catch (err){}
+						 }
 						}
 				 });
 		}
@@ -424,7 +432,23 @@
 		// save data stok barang
 		if(noproblem)
 		{	
-			
+			 $.ajax({
+					url : "<?php echo site_url('Items/savestokbarang')?>",
+					type: "POST",
+					data: { ItemArray }, 
+					dataType: "JSON",
+					success: function(data)
+					{
+						if(data.success)
+						{
+							alert('data berhasil disimpan');
+							$('#modal_form2').modal("hide");
+							resetmodal();
+						}
+						else
+							alert('Terjadi kesalahan ');
+					}
+			 });
 		}
 	}
 	

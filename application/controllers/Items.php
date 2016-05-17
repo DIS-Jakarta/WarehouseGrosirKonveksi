@@ -317,11 +317,6 @@ class Items extends CI_Controller {
 		echo json_encode($response);
 	}
 	
-	
-	public function cekQuantityquery()
-	{
-		
-	}
 
 	public function selectreturnvalquery()
 	{
@@ -348,5 +343,30 @@ class Items extends CI_Controller {
 		}
 		echo json_encode($response);
 	}
+	
+	public function savestokbarang()
+	{
+		try
+		{
+			//log_message('info', print_r($_POST['ItemArray',true));
+			$response = array(
+			'success' => FALSE);
+			foreach($_POST['ItemArray'] as $item)
+			{
+				$out = $this->Content->select2("select max(id) + 1 as 'Id' from trans_stock");
+				$item['Id'] = $out->Id;
+				
+				$insert = $this->Content->save('trans_stock', $item);
+				$response = array(
+				'success' => TRUE);
+			}
+		}
+		catch (Exception $e){
+			$response = array(
+			'success' => FALSE);
+		}
+		echo json_encode($response);
+	}
+	
 
 }
