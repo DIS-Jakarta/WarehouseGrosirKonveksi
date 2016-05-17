@@ -5,6 +5,43 @@
 		$('#Price3').maskMoney({prefix:'', thousands:'.', decimal:',', precision:0});
 	});
 	
+	var ajaxdone = false;
+	var noproblem = true;
+	var ItemArray = [];
+	
+	$(document).ajaxStop(function()
+	{
+		if(noproblem && ajaxdone)
+		{
+			var items = JSON.stringify(ItemArray);
+			 $.ajax({
+					url : "<?php echo site_url('Items/savestokbarang')?>",
+					type: "POST",
+					data: { "data" : items, "jenis" : $("#hddn-jenis").val() }, 
+					dataType: "JSON",
+					success: function(data)
+					{
+						if(data.success)
+						{
+							reload_table();
+							//$('#table').ajax.reload();
+							alert('data berhasil disimpan');
+							$('#modal_form2').modal("hide");
+							resetmodal();
+							
+						}
+						else
+							alert('Terjadi kesalahan ');
+					}
+			 });
+			 ajaxdone = false;
+		}
+		else
+		{
+		$('#loadinganimated').css('display','none');
+		$('#btnSavestokbarang').prop('disabled',false);
+		}
+	});
 	$('.current').html("Stok Barang")
 	
 	$(document).scannerDetection({
@@ -90,8 +127,6 @@
 					 }
 					}
 			  });
-			  $('#loadinganimated').css('display','none');
-			  $('#btnSavestokbarang').prop('disabled',false);
 			},
 			
 			onError: function(string){ }
@@ -290,14 +325,11 @@
             dataType: "JSON",
             success: function(data)
             {
-				$('#loadinganimated').css('display','none');
-			$('#btnSavestokbarang').prop('disabled',false);
                $("#" + elmbarcodeid).val(data.ItemBarcode);
             },
             error: function (jqXHR, textStatus, errorThrown)
             {
-                $('#loadinganimated').css('display','none');
-			$('#btnSavestokbarang').prop('disabled',false);
+
             }
         });
 	}
@@ -340,26 +372,33 @@
 	
 	function savestokbarang()
 	{
-		var ItemArray = [];
+		ItemArray = [];
+		$('#loadinganimated').css('display','inline');
+		$('#btnSavestokbarang').prop('disabled',true);
 		var counttr = 1;
 		var barcodeval = $("#td-ItemBarcode").val();
 		var barcodeid = "#td-ItemBarcode";
 		var barcodeqty = $("#td-Quantity").val();
+		var barcodenm = $("#td-ItemName").val();
 		var barcodeact = "#td-Action";
 		var noproblem = true;
+		ajaxdone = true;
 		var arraytable;
-		if($(".tr-row").length > 1)
+		if($("#tb-table > tr").length > 1)
 		{
-			$(".tr-row").each(function()
+			$("#tb-table > tr").each(function()
 			{
 				if(counttr!= 1)
 				{
 					barcodeval =  $("#td-ItemBarcode_" + counttr).val();
 					barcodeqty =  $("#td-Quantity_" + counttr).val();
+					barcodenm =  $("#td-ItemName_" + counttr).val();
 					barcodeid = "#td-ItemBarcode_" + counttr;
 					barcodeact = "#td-Action_" + counttr;
 				}
 				
+				if($("#hddn-jenis").val() == "barang keluar")
+				{
 				 $.ajax({
 					url : "<?php echo site_url('Items/selectreturnvalquery')?>",
 					type: "POST",
@@ -384,13 +423,37 @@
 								Quantity : barcodeqty,
 								Jenis : $("#hddn-jenis").val()
 								});
-								
-								
+							
 							 }
 							 catch (err){}
 						 }
 						}
 				 });
+				}
+				else
+				{
+					try
+							 {
+								ItemArray.push({
+								 ItemName : barcodenm,
+								Quantity : barcodeqty,
+								Jenis : $("#hddn-jenis").val()
+								});
+								
+									$.ajax({		
+									url : "<?php echo site_url('Items/selectreturnvalquery')?>",
+									type: "POST",
+									data: { "Query" : "SELECT 1 " +
+									"FROM reff_items LIMIT 1" , "fieldname" : "ItemName"}, 
+									dataType: "JSON",
+									success: function(data)
+									{
+									}
+									});
+								
+							 }
+							 catch (err){}
+				}
 				
 				counttr++;
 			});
@@ -430,26 +493,10 @@
 		}
 		
 		// save data stok barang
-		if(noproblem)
-		{	
-			 $.ajax({
-					url : "<?php echo site_url('Items/savestokbarang')?>",
-					type: "POST",
-					data: { ItemArray }, 
-					dataType: "JSON",
-					success: function(data)
-					{
-						if(data.success)
-						{
-							alert('data berhasil disimpan');
-							$('#modal_form2').modal("hide");
-							resetmodal();
-						}
-						else
-							alert('Terjadi kesalahan ');
-					}
-			 });
-		}
+		
+			
+			
+			
 	}
 	
 	</script>

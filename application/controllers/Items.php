@@ -348,14 +348,28 @@ class Items extends CI_Controller {
 	{
 		try
 		{
-			//log_message('info', print_r($_POST['ItemArray',true));
+			$data = json_decode(stripslashes($_POST['data']),true);
+			log_message('info', print_r($data,true));
 			$response = array(
 			'success' => FALSE);
-			foreach($_POST['ItemArray'] as $item)
+			foreach($data as $item)
 			{
+				if($_POST['jenis'] == "barang masuk")
+				{
+					$this->Content->updatewquery("Update reff_items set Quantity = Quantity + " . $item["Quantity"] .
+					" where ItemName = '" . $item["ItemName"] . "'");
+				}
+				else
+				{
+					$this->Content->updatewquery("Update reff_items set Quantity = Quantity - " . $item["Quantity"] .
+					" where ItemName = '" . $item["ItemName"] . "'");
+				}
 				$out = $this->Content->select2("select max(id) + 1 as 'Id' from trans_stock");
-				$item['Id'] = $out->Id;
-				
+				foreach($out as $outs)
+				{
+				$item['Id'] = $outs->Id;
+				}
+				$item['Tgl_Barang_Masuk'] = date('Y-m-d H:i:s');
 				$insert = $this->Content->save('trans_stock', $item);
 				$response = array(
 				'success' => TRUE);

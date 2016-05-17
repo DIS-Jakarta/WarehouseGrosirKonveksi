@@ -148,6 +148,13 @@ Class Content extends CI_Model
 		
 		return $query->result();
 	}
+	
+	public function updatewquery($query)
+	{
+		$query = $this->db->query($query);
+		
+		return $this->db->affected_rows();
+	}
  
  /* function insert($tablename,$column,$values)
  {
