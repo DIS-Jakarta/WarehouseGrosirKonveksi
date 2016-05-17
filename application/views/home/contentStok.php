@@ -11,7 +11,8 @@
 			avgTimeByChar: 400,
 			onComplete: function(barcode, qty)
 			{ 
-			
+			$('#loadinganimated').css('display','inline');
+			$('#btnSavestokbarang').prop('disabled',true);
 			  $.ajax({
 				url : "<?php echo site_url('Items/selectreturnvalquery')?>",
 				type: "POST",
@@ -89,13 +90,18 @@
 					 }
 					}
 			  });
+			  $('#loadinganimated').css('display','none');
+			  $('#btnSavestokbarang').prop('disabled',false);
 			},
 			
-			onError: function(string){ }
+			onError: function(string){   $('#loadinganimated').css('display','none');
+			  $('#btnSavestokbarang').prop('disabled',false); }
 			});
 	
 	function fillddl(iditemname,selecteditem)
 	{
+		$('#loadinganimated').css('display','inline');
+		$('#btnSavestokbarang').prop('disabled',true);
 		$.ajax({
 			url : "<?php echo site_url('Items/fillddl')?>",
 			type: "POST",
@@ -119,10 +125,11 @@
 					}
 					fillbarcode(selecteditem,iditemname);
 				}
+				
 			},
 			error: function (jqXHR, textStatus, errorThrown)
 			{
-				
+
 			}
 		});
 	}
@@ -267,6 +274,8 @@
 
 	function fillbarcode(selecteditem,rplciditemname)
 	{
+		$('#loadinganimated').css('display','inline');
+		$('#btnSavestokbarang').prop('disabled',true);
 		var elmbarcodeid = "td-ItemBarcode";
 		var iditemname = rplciditemname.replace("td-ItemName","")
 		if(!(iditemname.trim() == ""))
@@ -282,11 +291,14 @@
             dataType: "JSON",
             success: function(data)
             {
+				$('#loadinganimated').css('display','none');
+			$('#btnSavestokbarang').prop('disabled',false);
                $("#" + elmbarcodeid).val(data.ItemBarcode);
             },
             error: function (jqXHR, textStatus, errorThrown)
             {
-                
+                $('#loadinganimated').css('display','none');
+			$('#btnSavestokbarang').prop('disabled',false);
             }
         });
 	}
@@ -329,6 +341,7 @@
 	
 	function savestokbarang()
 	{
+		var ItemArray = [];
 		var counttr = 1;
 		var barcodeval = $("#td-ItemBarcode").val();
 		var barcodeid = "#td-ItemBarcode";
@@ -358,9 +371,29 @@
 						{
 						 if(!(data.success))
 						 {
+							 try
+							 {
+								ItemArray.push({
+								 <? if(counttr != 1)
+								 {
+									echo 'ItemName : $("#td-ItemName_" + counttr).val(),';
+								 }
+								 else
+								 {
+									 echo 'ItemName : $("#td-ItemName").val(),';
+								 }
+								 ?>
+								Quantity : barcodeqty,
+								Jenis : $("#hddn-jenis").val()
+								});
+								
+								console.log(ItemArray)
+							 }
+							 catch (err){}
+							 
 							 noproblem = false;
 							 
-							 $(barcodeact).html( $(barcodeact).html() + "<a class='btn btn-sm btn-danger' ><i class='glyphicon glyphicon-remove'></i></a>");
+							 $(barcodeact).html( $(barcodeact).html() + "<i class='glyphicon glyphicon-remove'></i>");
 						 }
 						}
 				 });
@@ -382,7 +415,7 @@
 						 {
 							 noproblem = false;
 							 
-							 $(barcodeact).html( $(barcodeact).html() + "<a class='btn btn-sm btn-danger' ><i class='glyphicon glyphicon-remove'></i></a>");
+							 $(barcodeact).html( $(barcodeact).html() + "<i class='glyphicon glyphicon-remove'></i>");
 						 }
 						}
 				 });
@@ -390,9 +423,8 @@
 		
 		// save data stok barang
 		if(noproblem)
-		{
-			var table = $('#tableaddstokbarang').tableToJSON(); // Convert the table into a javascript object
-			console.log(table);
+		{	
+			
 		}
 	}
 	
@@ -562,7 +594,8 @@
 	  </table>
 	  <button type="button" id="btnSave" onclick="addnewrow()" class="btn btn-primary" style="margin-bottom: 15px;width: 100%;"><i class="glyphicon glyphicon-plus"></i></button>
           <div class="modal-footer">
-            <button type="button" id="btnSave" onclick="savestokbarang()" class="btn btn-primary">Save</button>
+			<img src="<?php echo site_url()?>/resources/images/spinner.gif" style="max-height:80px;display:none;margin-right:-20px;" id="loadinganimated" />
+            <button type="button" id="btnSavestokbarang" onclick="savestokbarang()" class="btn btn-primary">Save</button>
             <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="resetmodal();" >Cancel</button>
           </div>
 		  </div>
