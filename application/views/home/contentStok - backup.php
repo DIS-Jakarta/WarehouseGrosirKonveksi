@@ -11,8 +11,36 @@
 	
 	$(document).ajaxStop(function()
 	{
+		if(noproblem && ajaxdone)
+		{
+			var items = JSON.stringify(ItemArray);
+			 $.ajax({
+					url : "<?php echo site_url('Items/savestokbarang')?>",
+					type: "POST",
+					data: { "data" : items, "jenis" : $("#hddn-jenis").val() }, 
+					dataType: "JSON",
+					success: function(data)
+					{
+						if(data.success)
+						{
+							reload_table();
+							//$('#table').ajax.reload();
+							alert('data berhasil disimpan');
+							$('#modal_form2').modal("hide");
+							resetmodal();
+							
+						}
+						else
+							alert('Quantity barang yang diinput tidak mencukupi. Mohon periksa kembali inputan anda');
+					}
+			 });
+			 ajaxdone = false;
+		}
+		else
+		{
 		$('#loadinganimated').css('display','none');
 		$('#btnSavestokbarang').prop('disabled',false);
+		}
 	});
 	$('.current').html("Stok Barang")
 	
@@ -369,60 +397,117 @@
 					barcodeact = "#td-Action_" + counttr;
 				}
 				
-					 try
-					 {
-						ItemArray.push({
-						 ItemName : barcodenm,
-						Quantity : barcodeqty,
-						Jenis : $("#hddn-jenis").val()
-						});
-					
-					 }
-					 catch (err){}
-				
+				if($("#hddn-jenis").val() == "barang keluar")
+				{
+				 $.ajax({
+					url : "<?php echo site_url('Items/selectreturnvalquery')?>",
+					type: "POST",
+					data: { "Query" : "SELECT ItemName " +
+					"FROM reff_items WHERE ItemBarcode='" + barcodeval + "' AND IFNULL(Quantity,0) >= IFNULL(" + barcodeqty + ",0)  LIMIT 1" , "fieldname" : "ItemName"}, 
+					dataType: "JSON",
+					success: function(data)
+						{
+						 if(!(data.success))
+						 {
+
+							 noproblem = false;
+							 var color = '#ff6961';
+							var rgbaCol = 'rgba(' + parseInt(color.slice(-6,-4),16)
+								+ ',' + parseInt(color.slice(-4,-2),16)
+								+ ',' + parseInt(color.slice(-2),16)
+								+',0.5)';
+							 $(".tr-row").css("background-color",color);
+						 }
+						 else
+						 {
+							 try
+							 {
+								ItemArray.push({
+								 ItemName : barcodenm,
+								Quantity : barcodeqty,
+								Jenis : $("#hddn-jenis").val()
+								});
+							
+							 }
+							 catch (err){}
+						 }
+						}
+				 });
+				}
+				else
+				{
+					try
+							 {
+								ItemArray.push({
+								 ItemName : barcodenm,
+								Quantity : barcodeqty,
+								Jenis : $("#hddn-jenis").val()
+								});
+								
+									$.ajax({		
+									url : "<?php echo site_url('Items/selectreturnvalquery')?>",
+									type: "POST",
+									data: { "Query" : "SELECT 1 " +
+									"FROM reff_items LIMIT 1" , "fieldname" : "ItemName"}, 
+									dataType: "JSON",
+									success: function(data)
+									{
+									}
+									});
+								
+							 }
+							 catch (err){}
+				}
 				
 				counttr++;
 			});
 		}
 		else
 		{
-					try
-					 {
-						ItemArray.push({
-						 ItemName : barcodenm,
-						Quantity : barcodeqty,
-						Jenis : $("#hddn-jenis").val()
-						});
-					 }
-					 catch (err){}
-		}
-		
-		
-		// save data stok barang
-		var items = JSON.stringify(ItemArray);
-			 $.ajax({
-					url : "<?php echo site_url('Items/savestokbarang')?>",
+			if($("#hddn-jenis").val() == "barang keluar")
+				{
+					$.ajax({
+					url : "<?php echo site_url('Items/selectreturnvalquery')?>",
 					type: "POST",
-					data: { "data" : items, "jenis" : $("#hddn-jenis").val() }, 
+					data: { "Query" : "SELECT ItemName " +
+					"FROM reff_items WHERE ItemBarcode='" + barcodeval + "' AND IFNULL(Quantity,0) >= IFNULL(" + barcodeqty + ",0)  LIMIT 1" , "fieldname" : "ItemName"}, 
 					dataType: "JSON",
 					success: function(data)
-					{
-						if(data.success)
 						{
-							reload_table();
-							//$('#table').ajax.reload();
-							alert('data berhasil disimpan');
-							$('#modal_form2').modal("hide");
-							resetmodal();
-							
+						 if(!(data.success))
+						 {
+							 noproblem = false;
+							 var color = '#ff6961';
+							var rgbaCol = 'rgba(' + parseInt(color.slice(-6,-4),16)
+								+ ',' + parseInt(color.slice(-4,-2),16)
+								+ ',' + parseInt(color.slice(-2),16)
+								+',0.5)';
+							 $(".tr-row").css("background-color",color);
+						 }
+						 else
+						 {
+							 try
+							 {
+								ItemArray.push({
+								 ItemName : data.ItemName,
+								Quantity : barcodeqty,
+								Jenis : $("#hddn-jenis").val()
+								});
+								
+								
+							 }
+							 catch (err){}
+						 }
 						}
-						else
-						{
-							//data.dataerror
-							alert('Quantity barang yang diinput tidak mencukupi. Mohon periksa kembali inputan anda');
-						}
-					}
-			 });
+					});
+				}
+		}
+		
+		// save data stok barang
+		
+			
+			
+			
 	}
 	
 	</script>

@@ -348,32 +348,95 @@ class Items extends CI_Controller {
 	{
 		try
 		{
+			$dataerror = "";
+			$error = FALSE;
+			$databeforesave = array();
+			$dbs = array();
 			$data = json_decode(stripslashes($_POST['data']),true);
 			log_message('info', print_r($data,true));
 			$response = array(
 			'success' => FALSE);
 			foreach($data as $item)
 			{
-				if($_POST['jenis'] == "barang masuk")
+				$databeforesave[$item["ItemName"]] = $item["Quantity"];
+				foreach($databeforesave as $databs)
 				{
-					$this->Content->updatewquery("Update reff_items set Quantity = Quantity + " . $item["Quantity"] .
-					" where ItemName = '" . $item["ItemName"] . "'");
+					log_message('info', print_r("key databs : " . $databs,true));
+					log_message('info', print_r("key databs : " . key($databs),true));
+					if(array_key_exists(key($databs),$dbs));
+					{
+						$dbs[key($databs)] = $dbs[key($databs)] + $databs["Quantity"];
+					}
+					
+					if(!(array_key_exists(key($databs),$dbs)))
+					{
+						$dbs[$databs["ItemName"]] = $databs["Quantity"];
+					}
+				}
+			}
+			
+			foreach($dbs as $dbsave)
+			{
+				if($_POST['jenis'] == "barang keluar")
+				{
+					$querysave = "select 1 from reff_items where IFNULL(Quantity,0) - "  . $dbsave[key($dbsave)] . " > 0 and ItemName = '" . key($dbsave) . "'";
+					if($this->Content->countrows() > 0)
+					{
+						$this->Content->updatewquery("Update reff_items set Quantity = Quantity - " . $dbsave[key($dbsave)] . " where ItemName = '" . key($dbsave) . "'");
+						$out = $this->Content->select2("select max(id) + 1 as 'Id' from trans_stock");
+						foreach($out as $outs)
+						{
+						$item['Id'] = $outs->Id;
+						}
+						$item['Tgl_Barang_Masuk'] = date('Y-m-d H:i:s');
+						$insert = $this->Content->save('trans_stock', $item);
+						
+					}
+					else
+					{
+						$error = TRUE;
+						if($dataerror == "")
+							$dataerror = key($dbsave);
+						else
+							$dataerror = "," . key($dbsave);
+					}
 				}
 				else
 				{
-					$this->Content->updatewquery("Update reff_items set Quantity = Quantity - " . $item["Quantity"] .
-					" where ItemName = '" . $item["ItemName"] . "'");
+					$this->Content->updatewquery("Update reff_items set Quantity = Quantity + " . $dbsave[key($dbsave)] . " where ItemName = '" . key($dbsave) . "'");
+					$out = $this->Content->select2("select max(id) + 1 as 'Id' from trans_stock");
+					foreach($out as $outs)
+					{
+					$item['Id'] = $outs->Id;
+					}
+					$item['Tgl_Barang_Masuk'] = date('Y-m-d H:i:s');
+					$insert = $this->Content->save('trans_stock', $item);
 				}
-				$out = $this->Content->select2("select max(id) + 1 as 'Id' from trans_stock");
-				foreach($out as $outs)
-				{
-				$item['Id'] = $outs->Id;
-				}
-				$item['Tgl_Barang_Masuk'] = date('Y-m-d H:i:s');
-				$insert = $this->Content->save('trans_stock', $item);
-				$response = array(
-				'success' => TRUE);
 			}
+			
+			$response = array(
+			'success' => $error,
+			'dataerror' => $dataerror);
+			
+			// if($_POST['jenis'] == "barang masuk")
+			// {
+				// $this->Content->updatewquery("Update reff_items set Quantity = Quantity + " . $item["Quantity"] .
+				// " where ItemName = '" . $item["ItemName"] . "'");
+			// }
+			// else
+			// {
+				// $this->Content->updatewquery("Update reff_items set Quantity = Quantity - " . $item["Quantity"] .
+				// " where ItemName = '" . $item["ItemName"] . "'");
+			// }
+			// $out = $this->Content->select2("select max(id) + 1 as 'Id' from trans_stock");
+			// foreach($out as $outs)
+			// {
+			// $item['Id'] = $outs->Id;
+			// }
+			// $item['Tgl_Barang_Masuk'] = date('Y-m-d H:i:s');
+			// $insert = $this->Content->save('trans_stock', $item);
+			// $response = array(
+			// 'success' => TRUE);
 		}
 		catch (Exception $e){
 			$response = array(
