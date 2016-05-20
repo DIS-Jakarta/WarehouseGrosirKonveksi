@@ -359,21 +359,24 @@ class Items extends CI_Controller {
 			foreach($data as $item)
 			{
 				$databeforesave[$item["ItemName"]] = $item["Quantity"];
-				foreach($databeforesave as $databs)
+				foreach($databeforesave as $key => $databs)
 				{
 					log_message('info', print_r("key databs : " . $databs,true));
-					log_message('info', print_r("key databs : " . key($databs),true));
-					if(array_key_exists(key($databs),$dbs));
+					log_message('info', print_r("key databs : " . $key,true));
+					if(array_key_exists($key,$dbs));
 					{
-						$dbs[key($databs)] = $dbs[key($databs)] + $databs["Quantity"];
+						array_push($dbs,$key,($dbs[$key] + $databs));
+						//= $dbs[key($databeforesave)] + $databs;
 					}
 					
-					if(!(array_key_exists(key($databs),$dbs)))
+					if(!(array_key_exists($key,$dbs)))
 					{
-						$dbs[$databs["ItemName"]] = $databs["Quantity"];
+						array_push($dbs,$key,$databs);
 					}
 				}
 			}
+			
+			log_message('info', print_r("dbs data : " . print_r($dbs),true));
 			
 			foreach($dbs as $dbsave)
 			{
