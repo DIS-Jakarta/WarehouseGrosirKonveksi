@@ -418,8 +418,8 @@
 						}
 						else
 						{
-							//data.dataerror
-							alert('Quantity barang yang diinput tidak mencukupi. Mohon periksa kembali inputan anda');
+							alert(data.dataerror);
+							alert('Quantity barang ' + data.dataerror + ' yang diinput tidak mencukupi stok barang. Mohon periksa kembali inputan anda');
 						}
 					}
 			 });

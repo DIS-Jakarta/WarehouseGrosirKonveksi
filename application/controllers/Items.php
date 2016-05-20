@@ -349,6 +349,7 @@ class Items extends CI_Controller {
 		try
 		{
 			$dataerror = "";
+			$count = 0;
 			$error = FALSE;
 			$databeforesave = array();
 			$dbs = array();
@@ -358,68 +359,138 @@ class Items extends CI_Controller {
 			'success' => FALSE);
 			foreach($data as $item)
 			{
-				$databeforesave[$item["ItemName"]] = $item["Quantity"];
-				foreach($databeforesave as $key => $databs)
+				if(array_key_exists($item["ItemName"],$databeforesave))
 				{
-					log_message('info', print_r("key databs : " . $databs,true));
-					log_message('info', print_r("key databs : " . $key,true));
-					if(array_key_exists($key,$dbs));
-					{
-						array_push($dbs,$key,($dbs[$key] + $databs));
-						//= $dbs[key($databeforesave)] + $databs;
-					}
-					
-					if(!(array_key_exists($key,$dbs)))
-					{
-						array_push($dbs,$key,$databs);
-					}
+					$databeforesave[$item["ItemName"]] = $databeforesave[$item["ItemName"]] + $item["Quantity"];
 				}
+				else
+				{
+					// $keys = array($item["ItemName"]);
+					$databeforesave[$item["ItemName"]] = $item["Quantity"];
+					// $array_to_push = array (
+					// $item["ItemName"] => $item["Quantity"]
+					// );
+					// array_push($databeforesave,$array_to_push);
+				}
+					//log_message('info', "key datab : " . print_r($databeforesave,true));
+				// foreach($databeforesave as $key => $databs)
+				// {
+					// log_message('info', print_r("key databs : " . $databs,true));
+					// log_message('info', print_r("key databs : " . $key,true));
+					// if(array_key_exists($key,$dbs));
+					// {
+						// array_push($dbs,$key,($dbs[$key] + $databs));
+						//= $dbs[key($databeforesave)] + $databs;
+					// }
+					
+					// if(!(array_key_exists($key,$dbs)))
+					// {
+						// array_push($dbs,$key,$databs);
+					// }
+				// }
+				$count++;
 			}
 			
-			log_message('info', print_r("dbs data : " . print_r($dbs),true));
+			log_message('info', "key datab : " . print_r($databeforesave,true));
+			log_message('info', "jenis : " . $_POST['jenis']);
 			
-			foreach($dbs as $dbsave)
+			foreach($databeforesave as $key => $value)
 			{
 				if($_POST['jenis'] == "barang keluar")
 				{
-					$querysave = "select 1 from reff_items where IFNULL(Quantity,0) - "  . $dbsave[key($dbsave)] . " > 0 and ItemName = '" . key($dbsave) . "'";
-					if($this->Content->countrows() > 0)
+					$querysave = "select 1 from reff_items where IFNULL(Quantity,0) - "  . $databeforesave[$key] . " >= 0 and ItemName = '" . $key . "'";
+					if($this->Content->countrows($querysave) > 0)
 					{
-						$this->Content->updatewquery("Update reff_items set Quantity = Quantity - " . $dbsave[key($dbsave)] . " where ItemName = '" . key($dbsave) . "'");
-						$out = $this->Content->select2("select max(id) + 1 as 'Id' from trans_stock");
-						foreach($out as $outs)
-						{
-						$item['Id'] = $outs->Id;
-						}
-						$item['Tgl_Barang_Masuk'] = date('Y-m-d H:i:s');
-						$insert = $this->Content->save('trans_stock', $item);
-						
+	
 					}
 					else
 					{
 						$error = TRUE;
 						if($dataerror == "")
-							$dataerror = key($dbsave);
+							$dataerror = $key;
 						else
-							$dataerror = "," . key($dbsave);
+							$dataerror = $dataerror .", " . $key;
 					}
 				}
 				else
 				{
-					$this->Content->updatewquery("Update reff_items set Quantity = Quantity + " . $dbsave[key($dbsave)] . " where ItemName = '" . key($dbsave) . "'");
-					$out = $this->Content->select2("select max(id) + 1 as 'Id' from trans_stock");
+					$this->Content->updatewquery("Update reff_items set Quantity = Quantity + " . $databeforesave[$key] . " where ItemName = '" . $key . "'");
+					$out = $this->Content->select2("select IFNULL(max(id),0) + 1 as 'Id' from trans_stock");
 					foreach($out as $outs)
 					{
 					$item['Id'] = $outs->Id;
 					}
+					$item['ItemName'] = $key;
+					$item['Jenis'] = $_POST['jenis'];
+					$item['Quantity'] = $databeforesave[$key];
 					$item['Tgl_Barang_Masuk'] = date('Y-m-d H:i:s');
 					$insert = $this->Content->save('trans_stock', $item);
 				}
 			}
 			
-			$response = array(
-			'success' => $error,
-			'dataerror' => $dataerror);
+			if(!($error) && $_POST['jenis'] == "barang keluar")
+			{
+				foreach($databeforesave as $key => $value)
+				{
+					$this->Content->updatewquery("Update reff_items set Quantity = Quantity - " . $databeforesave[$key] . " where ItemName = '" . $key . "'");
+						$out = $this->Content->select2("select IFNULL(max(id),0) + 1 as 'Id' from trans_stock");
+						foreach($out as $outs)
+						{
+						$item['Id'] = $outs->Id;
+						}
+						$item['ItemName'] = $key;
+						$item['Jenis'] = $_POST['jenis'];
+						$item['Quantity'] = $databeforesave[$key];
+						$item['Tgl_Barang_Masuk'] = date('Y-m-d H:i:s');
+						$insert = $this->Content->save('trans_stock', $item);
+				}
+			}
+				
+				$response = array(
+				'success' => !($error),
+				'dataerror' => $dataerror);
+			// foreach($dbs as $dbsave)
+			// {
+				// if($_POST['jenis'] == "barang keluar")
+				// {
+					// $querysave = "select 1 from reff_items where IFNULL(Quantity,0) - "  . $dbsave[key($dbsave)] . " > 0 and ItemName = '" . key($dbsave) . "'";
+					// if($this->Content->countrows() > 0)
+					// {
+						// $this->Content->updatewquery("Update reff_items set Quantity = Quantity - " . $dbsave[key($dbsave)] . " where ItemName = '" . key($dbsave) . "'");
+						// $out = $this->Content->select2("select max(id) + 1 as 'Id' from trans_stock");
+						// foreach($out as $outs)
+						// {
+						// $item['Id'] = $outs->Id;
+						// }
+						// $item['Tgl_Barang_Masuk'] = date('Y-m-d H:i:s');
+						// $insert = $this->Content->save('trans_stock', $item);
+						
+					// }
+					// else
+					// {
+						// $error = TRUE;
+						// if($dataerror == "")
+							// $dataerror = key($dbsave);
+						// else
+							// $dataerror = "," . key($dbsave);
+					// }
+				// }
+				// else
+				// {
+					// $this->Content->updatewquery("Update reff_items set Quantity = Quantity + " . $dbsave[key($dbsave)] . " where ItemName = '" . key($dbsave) . "'");
+					// $out = $this->Content->select2("select max(id) + 1 as 'Id' from trans_stock");
+					// foreach($out as $outs)
+					// {
+					// $item['Id'] = $outs->Id;
+					// }
+					// $item['Tgl_Barang_Masuk'] = date('Y-m-d H:i:s');
+					// $insert = $this->Content->save('trans_stock', $item);
+				// }
+			// }
+			
+			// $response = array(
+			// 'success' => $error,
+			// 'dataerror' => $dataerror);
 			
 			// if($_POST['jenis'] == "barang masuk")
 			// {
