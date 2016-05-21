@@ -418,7 +418,7 @@
 						}
 						else
 						{
-							alert(data.dataerror);
+							///aalert(data.dataerror);
 							alert('Quantity barang ' + data.dataerror + ' yang diinput tidak mencukupi stok barang. Mohon periksa kembali inputan anda');
 						}
 					}
