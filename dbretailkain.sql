@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: May 13, 2016 at 01:14 AM
+-- Generation Time: May 21, 2016 at 06:26 AM
 -- Server version: 5.5.20
 -- PHP Version: 5.3.9
 
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `reff_items` (
   `ItemName` varchar(150) NOT NULL,
   `description` varchar(8000) DEFAULT NULL,
   `Quantity` int(11) DEFAULT NULL,
-  `ItemBarcode` varchar(100) DEFAULT NULL,
+  `ItemBarcode` varchar(200) NOT NULL,
   PRIMARY KEY (`ItemName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -90,8 +90,9 @@ CREATE TABLE IF NOT EXISTS `reff_items` (
 --
 
 INSERT INTO `reff_items` (`ItemName`, `description`, `Quantity`, `ItemBarcode`) VALUES
-('test1', 'test1', 11, ''),
-('test2', 'test2', NULL, '');
+('test1', 'test1', 6, '8999909000162'),
+('test2', 'test2', 7, '8994096101357'),
+('test3', 'test3', NULL, '8999909000162');
 
 -- --------------------------------------------------------
 
@@ -100,9 +101,8 @@ INSERT INTO `reff_items` (`ItemName`, `description`, `Quantity`, `ItemBarcode`) 
 --
 CREATE TABLE IF NOT EXISTS `reff_itemss` (
 `ItemName` varchar(150)
-,`description` varchar(8000)
+,`Description` varchar(8000)
 ,`Quantity` int(11)
-,`ItemBarcode` varchar(100)
 );
 -- --------------------------------------------------------
 
@@ -275,7 +275,7 @@ INSERT INTO `trans_invoice_detail` (`invoiceId`, `detailId`, `bagian_kendaraan`,
 --
 
 CREATE TABLE IF NOT EXISTS `trans_stock` (
-  `Id` int(10) unsigned zerofill NOT NULL,
+  `Id` int(10) NOT NULL,
   `Tgl_Barang_Masuk` datetime NOT NULL,
   `Jenis` varchar(15) NOT NULL,
   `ItemName` varchar(150) NOT NULL,
@@ -288,8 +288,11 @@ CREATE TABLE IF NOT EXISTS `trans_stock` (
 --
 
 INSERT INTO `trans_stock` (`Id`, `Tgl_Barang_Masuk`, `Jenis`, `ItemName`, `Quantity`) VALUES
-(0000000002, '2016-05-07 00:00:00', 'barang masuk', 'test1', 10),
-(0000000003, '2016-05-08 00:00:00', 'barang masuk', 'test1', 1);
+(1, '2016-05-20 20:04:30', 'barang masuk', 'test1', 6),
+(2, '2016-05-20 20:04:30', 'barang masuk', 'test2', 10),
+(3, '2016-05-20 20:05:10', 'barang masuk', 'test1', 2),
+(4, '2016-05-20 20:08:51', 'barang keluar', 'test1', 2),
+(5, '2016-05-20 20:08:51', 'barang keluar', 'test2', 3);
 
 -- --------------------------------------------------------
 
@@ -298,7 +301,7 @@ INSERT INTO `trans_stock` (`Id`, `Tgl_Barang_Masuk`, `Jenis`, `ItemName`, `Quant
 --
 DROP TABLE IF EXISTS `reff_itemss`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `reff_itemss` AS select `reff_items`.`ItemName` AS `ItemName`,`reff_items`.`description` AS `description`,`reff_items`.`Quantity` AS `Quantity`,`reff_items`.`ItemBarcode` AS `ItemBarcode` from `reff_items`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `reff_itemss` AS select `reff_items`.`ItemName` AS `ItemName`,`reff_items`.`description` AS `Description`,`reff_items`.`Quantity` AS `Quantity` from `reff_items`;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
