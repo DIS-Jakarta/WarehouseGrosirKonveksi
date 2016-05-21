@@ -258,62 +258,98 @@ class Items extends CI_Controller {
         'success' => false
 		);
 		
-		if($_POST['method'] == "update")
+		
+		$databefore = 0;
+		$abs = 0;
+		$Jenis = "";
+		//log_message('info',print_r('id : ' . $_POST['id'],true));
+		$out = $this->Content->select2("select Quantity,Jenis,ItemName from trans_stock where Id ='" . $_POST['id'] . "'");
+		foreach($out as $outs)
 		{
-			$databefore = 0;
-			//log_message('info',print_r('id : ' . $_POST['id'],true));
-			$out = $this->Content->select2("select Quantity from trans_stock where Id ='" . $_POST['id'] . "'");
-			foreach($out as $outs)
-			{
-				$databefore = $outs->Quantity;
-			}
-			//log_message('info',print_r('databefore : ' . $databefore,true));
-			$abs = $_POST['Quantity'] - $databefore;
-			$_POST['query'] = str_replace($_POST['Quantity'],$abs, $_POST['query']);
-			//log_message('info', print_r($_POST['query'],true));
+			$databefore = $outs->Quantity;
+			$Jenis = $outs->Jenis;
+			$ItemName = $outs->ItemName;
 		}
-		else if ($_POST['method'] == "delete")
+		
+		if(($Jenis == "barang keluar" && $_POST['method'] == "update") || ($Jenis == "barang masuk" && $_POST['method'] == "delete"))
 		{
-			$Quantity = "";
-			$Jenis = "";
-			$ItemName = "";
-			$out = $this->Content->select2("select Quantity,Jenis,ItemName from trans_stock where Id ='" . $_POST['id'] . "'");
-			foreach($out as $outs)
-			{
-				$Quantity = $outs->Quantity;
-				$Jenis = $outs->Jenis;
-				$ItemName = $outs->ItemName;
-			}
-			
-				if($Jenis == "barang masuk")
-				{
-					$Jenis = " - ";
-				}
-				else
-				{
-					$Jenis = " + ";
-				}
-				
-				$_POST['query'] = str_replace("{__ITEMNAME__}",$ItemName, $_POST['query']);
-				$_POST['query'] = str_replace("{__JENIS__}",$Jenis, $_POST['query']);
-				$_POST['query'] = str_replace("{__JUMLAHSTOK__}",$Quantity, $_POST['query']);
-				log_message('info', print_r($_POST['query'],true));
+			$Jenis = " - ";
 		}
+		else if(($Jenis == "barang keluar" && $_POST['method'] == "delete") || ($Jenis == "barang masuk" && $_POST['method'] == "update"))
+		{
+			$Jenis = " + ";
+		}
+		
+		//log_message('info',print_r('databefore : ' . $databefore,true));
+		if($_POST['method'] == "delete")
+		{
+		$abs = $databefore;
+		}
+		else
+		$abs = $_POST['Quantity'] - $databefore;
 	
-			$countrows = $this->Content->countrows($_POST['query']);
-			if($countrows > 0)
+		$querysave = "select IFNULL(Quantity,0) " . $Jenis . " ("  . $abs . ") from reff_items where IFNULL(Quantity,0) " . $Jenis . " ("  . $abs . ") >= 0 and ItemName = '" . $ItemName . "'";
+		log_message('info','$querysave : ' . $querysave);
+		if($this->Content->countrows($querysave) > 0)
+		{
+			$querys = $this->Content->select2("select IFNULL(Quantity,0) " . $Jenis . " ("  . $abs . ") as 'quantitys' from reff_items where IFNULL(Quantity,0) " . $Jenis . " ("  . $abs . ") >= 0 and ItemName = '" . $ItemName . "'");
+			foreach($querys as $queryss)
 			{
-				$out= $this->Content->selectwquery($_POST['query']);
-				foreach($out as $outp)
-				{
-					$keys["ItemName"] = $_POST['keys'];
-					$values["Quantity"] = $outp->datas;
-					$this->Content->update("reff_items",$keys, $values);
-					$response = array(
-					'success' => TRUE
-					);
-				}
+				$qtys = $queryss->quantitys;
 			}
+			$keys["ItemName"] = $ItemName;
+			$values["Quantity"] = $qtys;
+			$this->Content->update("reff_items",$keys, $values);
+			$response = array(
+			'success' => TRUE);
+		}
+
+		// else if ($_POST['method'] == "delete")
+		// {
+			// $Quantity = "";
+			// $Jenis = "";
+			// $ItemName = "";
+			// $out = $this->Content->select2("select Quantity,Jenis,ItemName from trans_stock where Id ='" . $_POST['id'] . "'");
+			// foreach($out as $outs)
+			// {
+				// $Quantity = $outs->Quantity;
+				// $Jenis = $outs->Jenis;
+				// $ItemName = $outs->ItemName;
+			// }
+			
+				// if($Jenis == "barang masuk")
+				// {
+					// $Jenis = " - ";
+				// }
+				// else
+				// {
+					// $Jenis = " + ";
+				// }
+				
+				// $_POST['query'] = str_replace("{__ITEMNAME__}",$ItemName, $_POST['query']);
+				// $_POST['query'] = str_replace("{__JENIS__}",$Jenis, $_POST['query']);
+				// $_POST['query'] = str_replace("{__JUMLAHSTOK__}",$Quantity, $_POST['query']);
+				// log_message('info', print_r($_POST['query'],true));
+		// }
+	
+			// $countrows = $this->Content->countrows($_POST['query']);
+			// if($countrows > 0)
+			// {
+				// $out= $this->Content->selectwquery($_POST['query']);
+				// foreach($out as $outp)
+				// {
+					// if($outp->datas > 0)
+					// {
+					// $keys["ItemName"] = $_POST['keys'];
+					// $values["Quantity"] = $outp->datas;
+					// $this->Content->update("reff_items",$keys, $values);
+					// $response = array(
+					// 'success' => TRUE
+					// );
+					// }
+					// else
+				// }
+			// }
 		echo json_encode($response);
 	}
 	
@@ -414,7 +450,7 @@ class Items extends CI_Controller {
 				}
 				else
 				{
-					$this->Content->updatewquery("Update reff_items set Quantity = Quantity + " . $databeforesave[$key] . " where ItemName = '" . $key . "'");
+					$this->Content->updatewquery("Update reff_items set Quantity = IFNULL(Quantity,0) + " . $databeforesave[$key] . " where ItemName = '" . $key . "'");
 					$out = $this->Content->select2("select IFNULL(max(id),0) + 1 as 'Id' from trans_stock");
 					foreach($out as $outs)
 					{

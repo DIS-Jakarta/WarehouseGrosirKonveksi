@@ -11,7 +11,7 @@
 	
 	$(document).ajaxStop(function()
 	{
-		$('#loadinganimated').css('display','none');
+		$('#loadinganimated2').css('display','none');
 		$('#btnSavestokbarang').prop('disabled',false);
 	});
 	$('.current').html("Stok Barang")
@@ -20,7 +20,7 @@
 			avgTimeByChar: 400,
 			onComplete: function(barcode, qty)
 			{ 
-			$('#loadinganimated').css('display','inline');
+			$('#loadinganimated2').css('display','inline');
 			$('#btnSavestokbarang').prop('disabled',true);
 			  $.ajax({
 				url : "<?php echo site_url('Items/selectreturnvalquery')?>",
@@ -106,7 +106,7 @@
 	
 	function fillddl(iditemname,selecteditem)
 	{
-		$('#loadinganimated').css('display','inline');
+		$('#loadinganimated2').css('display','inline');
 		$('#btnSavestokbarang').prop('disabled',true);
 		$.ajax({
 			url : "<?php echo site_url('Items/fillddl')?>",
@@ -189,57 +189,90 @@
 	  elem.value = currentDate;
 	}
 	
-	function UpdateStokBarang()
+	function UpdateStokBarang(tablename,keyfields,keyvalue)
     {
+		$('#loadinganimated2').css('display','none');
+		$('#btnSavestokbarang').prop('disabled',false);
 		var jenis = "";
 		var jumlahstok = "";
 		var idtransstok= "";
 		var itemname = "";
-			if(save_method != "delete")
-			{
+		
 				itemname = $('#ItemName').val();
 				jumlahstok = $('#Quantity').val();
-				if($('#Jenis').val() == "barang masuk")
-				{
-					jenis = " + ";
-				}
-				else
-				{
-					jenis = " - ";
-				}
-				
-				
+				jenis = $('#Jenis').val();
 				try
 				{
-					idtransstok = $('#Id').val();
+					if(!(keyvalue === undefined))
+						idtransstok = keyvalue;
+					else
+						idtransstok = $('#Id').val();
 				}
 				catch(err){}
-			}
-			else
-			{
-				itemname = "{__ITEMNAME__}";
-				jenis = "{__JENIS__}";
-				jumlahstok = "{__JUMLAHSTOK__}";
-				idtransstok = valuekey;
-			}
+
 		var stokbarang = "";
 		$.ajax({
             url : "<?php echo site_url('Items/selectwquery')?>",
             type: "POST",
-            data: { "query" : "select ( IFNULL(Quantity,0) " +
-		" " + jenis + jumlahstok + ") as 'datas' " +
-		"from reff_items where ItemName='" + itemname  + "'","keys" : $('#ItemName').val(), "method" : save_method, "id" : idtransstok, "Quantity" : jumlahstok}, 
+            data: { "jenis" : jenis , "method" : save_method, "id" : idtransstok, "Quantity" : jumlahstok}, 
             dataType: "JSON",
             success: function(data)
             {
-               if(!(data.success))
+				if(!(data.success))
 				{	
-					alert('Gagal update stok barang. Mohon menghubungi adminsitrator');
+					alert('Tidak dapat melakukan update / hapus transaksi. Quantity barang tidak mencukupi');
+				}
+				else
+				{
+					if(save_method == "delete")
+					{
+						$.ajax({
+						url : "<?php echo site_url('Items/delete')?>",
+						type: "POST",
+						dataType: "JSON",
+						"data": {
+						"tablename" : tablename,
+						"keyfields" : keyfields,
+						"keyvalue" : keyvalue
+						},
+						success: function(data)
+						{
+						   //if success reload ajax table
+						   alert('Data berhasil dihapus');
+						   $('#modal_form').modal('hide');
+						   reload_table();
+						},
+						error: function (jqXHR, textStatus, errorThrown)
+						{
+							 alert('Terjadi kesalahan pada sistem. Mohon menghubungi adminsitrator');
+						}
+						});
+					}
+					else
+					{
+						 $.ajax({
+							url : "<?php echo site_url('Items/update')?>",
+							type: "POST",
+							data: $('#form').serialize(),
+							dataType: "JSON",
+							success: function(data)
+							{
+							   //if success close modal and reload ajax table
+								alert('Data berhasil disimpan');
+								$('#modal_form').modal('hide');
+								reload_table();
+							},
+							error: function (jqXHR, textStatus, errorThrown)
+							{
+								 alert('Terjadi kesalahan pada sistem. Mohon menghubungi adminsitrator');
+							}
+						});
+					}
 				}
             },
             error: function (jqXHR, textStatus, errorThrown)
             {
-                alert('Gagal update stok barang. Mohon menghubungi adminsitrator');
+                alert('Tidak dapat melakukan update transaksi, dikarenakan quantity barang tidak mencukupi');
             }
         });
 	}
@@ -280,7 +313,7 @@
 
 	function fillbarcode(selecteditem,rplciditemname)
 	{
-		$('#loadinganimated').css('display','inline');
+		$('#loadinganimated2').css('display','inline');
 		$('#btnSavestokbarang').prop('disabled',true);
 		var elmbarcodeid = "td-ItemBarcode";
 		var iditemname = rplciditemname.replace("td-ItemName","")
@@ -345,7 +378,7 @@
 	function savestokbarang()
 	{
 		ItemArray = [];
-		$('#loadinganimated').css('display','inline');
+		$('#loadinganimated2').css('display','inline');
 		$('#btnSavestokbarang').prop('disabled',true);
 		var counttr = 1;
 		var barcodeval = $("#td-ItemBarcode").val();
@@ -550,6 +583,7 @@
         </form>
           </div>
           <div class="modal-footer">
+		  <img src="<?php echo site_url()?>/resources/images/spinner.gif" style="max-height:80px;display:none;margin-right:-20px;" id="loadinganimated" />
             <button type="button" id="btnSave" onclick="save()" class="btn btn-primary">Save</button>
             <button type="button" class="btn btn-danger" data-dismiss="modal" >Cancel</button>
 			<button type="button" class="btn btn-danger" id="btnclose" style="display: none;" data-dismiss="modal">Close</button>
@@ -591,7 +625,7 @@
 	  </table>
 	  <button type="button" id="btnSave" onclick="addnewrow()" class="btn btn-primary" style="margin-bottom: 15px;width: 100%;"><i class="glyphicon glyphicon-plus"></i></button>
           <div class="modal-footer">
-			<img src="<?php echo site_url()?>/resources/images/spinner.gif" style="max-height:80px;display:none;margin-right:-20px;" id="loadinganimated" />
+			<img src="<?php echo site_url()?>/resources/images/spinner.gif" style="max-height:80px;display:none;margin-right:-20px;" id="loadinganimated2" />
             <button type="button" id="btnSavestokbarang" onclick="savestokbarang()" class="btn btn-primary">Save</button>
             <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="resetmodal();" >Cancel</button>
           </div>

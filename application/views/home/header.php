@@ -134,6 +134,11 @@ $(document).ready(function(){
 		$('#sidebar h3').css({ 'font-size' : '13px', 'color' : '#1F1F20' });
 	});
 	
+	$(document).ajaxStop(function()
+	{
+		$('#loadinganimated').css('display','none');
+		$('#btnSave').prop('disabled',false);
+	});
 	
 		table = $('#table').DataTable({ 
 
@@ -253,6 +258,8 @@ $(document).ready(function(){
 		  for($i=0;$i < count($col);$i++)
 		  {
 			  echo '
+					$(\'#loadinganimated\').css(\'display\',\'inline\');
+					$(\'#btnSave\').prop(\'disabled\',true);
 						$.ajax({
 						url : "' . site_url('Items/fillddl') . '",
 						type: "POST",
@@ -305,8 +312,9 @@ $(document).ready(function(){
 	  try
 	  {
 	  UpdateStokBarang();
+	  return;
 	  }
-	  catch(err){}
+	  catch(err){ }
 
 	  // end of special case for Invoice
       var url;
@@ -318,7 +326,8 @@ $(document).ready(function(){
       {
         url = "<?php echo site_url('Items/update')?>";
       }
-
+		$('#loadinganimated').css('display','inline');
+		$('#btnSave').prop('disabled',true);
        // ajax adding data to database
           $.ajax({
             url : url,
@@ -489,7 +498,8 @@ $(document).ready(function(){
     {
       save_method = 'update';
       $('#form')[0].reset(); // reset form on modals
-
+		$('#loadinganimated').css('display','inline');
+		$('#btnSave').prop('disabled',true);
       //Ajax Load data from ajax
       $.ajax({
         url : "<?php echo site_url('Items/edit')?>",
@@ -615,9 +625,10 @@ $(document).ready(function(){
 		  try
 		  {
 			valuekey = keyvalue;
-		  UpdateStokBarang();
+			UpdateStokBarang(tablename,keyfields,keyvalue);
+			return;
 		  }
-		  catch(err){}
+		  catch(err){ }
         // ajax delete data to database
           $.ajax({
             url : "<?php echo site_url('Items/delete')?>",

@@ -156,6 +156,7 @@
         </form>
           </div>
           <div class="modal-footer">
+		  <img src="<?php echo site_url()?>/resources/images/spinner.gif" style="max-height:80px;display:none;margin-right:-20px;" id="loadinganimated" />
             <button type="button" id="btnSave" onclick="save()" class="btn btn-primary">Save</button>
             <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
             <button type="button" class="btn btn-danger" id="btnclose" style="display: none;" data-dismiss="modal">Close</button>
