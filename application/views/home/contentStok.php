@@ -576,7 +576,7 @@
 			<div class="form-group">
               <label class="control-label col-md-3">QUANTITY</label>
               <div class="col-md-9">
-                <input name="Quantity" placeholder="Quantity" class="form-control" type="text" id="Quantity">
+                <input name="Quantity" placeholder="Quantity" class="form-control number-input" type="text" id="Quantity">
               </div>
             </div>
           </div>

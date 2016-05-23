@@ -74,6 +74,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  var valuekey;
 $(document).ready(function(){
 	
+	$("#td-Quantity").keyup(function (e) {
+            $(this).val($(this).val().replace(/[^0-9]/g, ''));
+        });
+	
    $("#show_login").click(function(){
     showpopup();
    });
